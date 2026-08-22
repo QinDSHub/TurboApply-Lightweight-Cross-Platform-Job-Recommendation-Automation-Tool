@@ -64,13 +64,7 @@ It was built to help you: Decide faster which jobs are actually worth applying f
 
 The goal is to recreate the initial-state experience of a job platform:
 
-Open the recommendation table
-            ↓
-See the jobs worth applying for today
-            ↓
-Click URL
-            ↓
-Apply
+Open the recommendation table -> See the jobs worth applying for today -> Click URL -> Apply
 
 No endless scrolling.
 
@@ -121,6 +115,7 @@ The recommendation engine is therefore intentionally:
 
 TurboApply consists of five major stages:
 
+```text
 ┌─────────────────────────────┐
 │       Job Platforms         │
 │ LinkedIn / IrishJobs / ...  │
@@ -164,18 +159,11 @@ TurboApply consists of five major stages:
                                │
                                └──────► Future
                                      Recommendations
+```
 
 The system therefore forms a closed feedback loop:
 
-Historical Applications
-          ↓
-Recommendation
-          ↓
-New Applications
-          ↓
-Updated History
-          ↓
-Future Recommendations
+Historical Applications -> Recommendation -> New Applications -> Updated History -> Future Recommendations
 
 ### 5. Data Processing Pipeline
 #### 5.1 Data Acquisition
@@ -244,7 +232,9 @@ Rule	Condition	Level
 1	Posted within the last 7 days + never applied to the company before	Must-apply
 2	Posted within the last 3 days + more than 30 days since the last application to the company	Must-apply
 3	Sort all recommended jobs by posting time, descending	Priority
-Rule 1 — New Company
+
+```text
+(1) Rule 1 — New Company
 Posted ≤ 7 days
 +
 Never applied to company
@@ -253,7 +243,7 @@ Must-apply
 
 The objective is to identify genuinely new opportunities and avoid repeatedly targeting the same companies.
 
-Rule 2 — Re-engagement After a Sufficient Interval
+(2) Rule 2 — Re-engagement After a Sufficient Interval
 Posted ≤ 3 days
 +
 Last application > 30 days ago
@@ -261,20 +251,20 @@ Last application > 30 days ago
 Must-apply
 
 This allows previously targeted companies to become relevant again after a reasonable interval.
+```
 
-Rule 3 — Recent Opportunities First
+(3) Rule 3 — Recent Opportunities First
 
 Among qualifying recommendations, more recently posted positions receive higher priority.
 
-The basic principle is:
-
-Use recentness to identify opportunities, historical application behavior to control repetition, and posting time to prioritize the final recommendation list.
+The basic principle is: Use recentness to identify opportunities, historical application behavior to control repetition, and posting time to prioritize the final recommendation list.
 
 ### 7. Evolution of the Architecture
 V1 — Fully Automated Workflow
 
 The initial architecture aimed for a fully automated, zero-touch workflow:
 
+```text
 Platform
    ↓
 Automated Crawler
@@ -286,6 +276,7 @@ Preprocessing
 Recommendation Rules
    ↓
 today_recommendation.csv
+```
 
 The crawler automatically collected incremental listings from LinkedIn and IrishJobs.
 
@@ -305,9 +296,7 @@ IrishJobs	Approximately 4 pages accessible; subsequent access could be denied an
 
 These observations reflect the behavior encountered during development and may change as the platforms evolve.
 
-The fundamental problem was:
-
-A recommendation system depends on opportunity coverage, while the crawler's coverage depends on platform-specific access behavior.
+The fundamental problem was: A recommendation system depends on opportunity coverage, while the crawler's coverage depends on platform-specific access behavior.
 
 When the number of newly posted jobs increased, the crawler could fail to capture the complete set of relevant listings.
 
@@ -315,6 +304,7 @@ When the number of newly posted jobs increased, the crawler could fail to captur
 
 Instead of continuously increasing crawler complexity, TurboApply adopted a pragmatic semi-automated architecture:
 
+```text
 Job Platform
      ↓
 Manual HTML Download
@@ -330,6 +320,7 @@ Historical Data Integration
 Rule Engine
      ↓
 Recommendation
+```
 
 Only the data acquisition step becomes partially manual.
 
@@ -355,6 +346,7 @@ This transforms TurboApply from a platform-specific crawler into a more: Portabl
 
 New platforms can be integrated through a platform-specific parser:
 
+```text
 LinkedIn ─────► linkedin_parser.py ────┐
 IrishJobs ────► irishjobs_parser.py ───┤
 Indeed ───────► indeed_parser.py ──────┤
@@ -363,6 +355,7 @@ Indeed ───────► indeed_parser.py ──────┤
                                        │
                                        ▼
                               Recommendation Engine
+```
 
 The core recommendation logic remains platform-independent.
 
@@ -385,6 +378,7 @@ Application history	Separate/manual tracking	Centralized dataset
 
 Previously, completing one meaningful application could take approximately one hour, including:
 
+```text
 Search
   ↓
 Screen
@@ -406,6 +400,7 @@ Review
 Click URL
       ↓
 Apply
+```
 
 Based on my experience, this reduces the time spent on repetitive search and screening sufficiently to support approximately 5–6 targeted applications within the same hour.
 
@@ -476,12 +471,13 @@ page_3.html
 ...
 
 For example:
-
+```text
 linkedin_raw_data/
 ├── page_1.html
 ├── page_2.html
 └── ...
 Configure the Pipeline
+```
 
 Open:
 
@@ -504,6 +500,7 @@ poetry run bash one_click_run.sh
 
 The pipeline automatically performs:
 
+```text
 Parsing
   ↓
 Preprocessing
@@ -517,20 +514,24 @@ Deduplication
 Historical Data Integration
   ↓
 Recommendation
+```
 
-The final output is:
-
-today_recommendation.csv
+The final output is: today_recommendation.csv
 
 Open the file and use the url column to navigate directly to the corresponding job posting or application page.
 
 ### 13. Repository Structure
+```text
 TurboApply_Lightweight_Tool/
 │
 ├── linkedin_raw_data/
 ├── irishjobs_raw_data/
 │
-├── xxx_parser.py
+├── src:
+|────────linkedin_parser.py
+|────────irishjobs_parser.py
+|────────recommend.py
+|
 ├── one_click_run.sh
 │
 ├── today_recommendation.csv
@@ -540,6 +541,7 @@ TurboApply_Lightweight_Tool/
 │
 └── docs/
     └── ARCHITECTURE.md
+```
 
 ### 14. Extensibility
 
@@ -566,21 +568,22 @@ The architecture is intentionally designed so that future ML/DL components could
 For example:
 
 Current:
-
+```text
 Raw Data
    ↓
 Rules
    ↓
 Recommendation
-
+```
 
 Potential Future:
-
+```text
 Raw Data
    ↓
 Rules + ML Ranking
    ↓
 Recommendation
+```
 
 The ML component would therefore be introduced only if it provides sufficient incremental value.
 
@@ -618,13 +621,9 @@ the candidate can redirect that cognitive energy toward the question that matter
 
 That is ultimately what TurboApply is trying to achieve.
 
-Not simply:
+Not simply: Apply faster.
 
-Apply faster.
-
-But:
-
-Spend more of your limited time on the parts of the job-search process where human judgment matters most.
+But: Spend more of your limited time on the parts of the job-search process where human judgment matters most.
 
 ### 17. GenAI-Assisted Development
 
@@ -636,9 +635,7 @@ Claude Code — used primarily for platform-specific parser implementation, code
 DeepSeek — used for scripting and automation tasks, as well as Chinese-language optimization and the initial English-language version.
 ChatGPT — used for final English-language refinement, technical writing, consistency, and readability improvements.
 
-This experience reinforced another observation:
-
-Different GenAI products have different strengths.
+This experience reinforced another observation: Different GenAI products have different strengths.
 
 Rather than treating these tools as interchangeable, users can combine their respective strengths at different stages of a project.
 
@@ -650,11 +647,11 @@ The current platform-specific parsers are functional with the platform versions 
 
 However, web platforms may change:
 
-Page structures;
-Access policies;
-HTML layouts;
-Search interfaces;
-Other implementation details.
+- Page structures;
+- Access policies;
+- HTML layouts;
+- Search interfaces;
+- Other implementation details.
 
 Future compatibility issues therefore cannot be ruled out.
 
@@ -688,10 +685,4 @@ You are welcome to:
 - Submit pull requests.
 - Repository
 
-TurboApply_Lightweight_Tool
-
-View the GitHub Repository
-
-TurboApply
-
-Search less. Decide faster. Apply better.
+TurboApply: Search less. Decide faster. Apply better.
