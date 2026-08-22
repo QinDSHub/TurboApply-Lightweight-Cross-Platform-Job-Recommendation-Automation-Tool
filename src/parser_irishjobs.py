@@ -186,7 +186,7 @@ if __name__ == "__main__":
     import argparse
     arg_parser = argparse.ArgumentParser(description='get jobs for start and end page')
     arg_parser.add_argument('--start_page', type=int, default=1, help='start page for parser')
-    arg_parser.add_argument('--end_page', type=int, default=5, help='end page for parser')
+    arg_parser.add_argument('--end_page', type=int, default=2, help='end page for parser')
     arg_parser.add_argument('--html_data_dir', default='../irishjobs_raw_data', help='raw data for html')
     arg_parser.add_argument('--data_dir', default="../", help="save extracted data")
     arg_parser.add_argument('--filename', default="irishjobs_data.csv", help='the file name for saved data')

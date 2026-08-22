@@ -277,7 +277,7 @@ if __name__ == "__main__":
       
       arg_parser = argparse.ArgumentParser(description='parse LinkedIn HTML data')
       arg_parser.add_argument('--start_page', type=int, default=1, help='start page with pattern page_{page}.html')
-      arg_parser.add_argument('--end_page', type=int, default=50, help='end page(included)')
+      arg_parser.add_argument('--end_page', type=int, default=2, help='end page(included)')
       arg_parser.add_argument('--html_data_dir', default='../linkedin_raw_data', help='HTML raw data path')
       arg_parser.add_argument('--data_dir', default='../', help='save path for results')
       arg_parser.add_argument('--filename', default='linkedin_data.csv', help='file name for first run with all data')
