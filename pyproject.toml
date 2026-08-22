@@ -1,0 +1,54 @@
+[project]
+name = "TurboApply"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "QinMULab",email = "luccieqin@gmail.com"}
+]
+readme = "README.md"
+requires-python = "==3.12.7"
+dependencies = [
+    "fastapi (==0.128.4)",
+    "httpx (==0.28.1)",
+    "joblib (==1.4.2)",
+    "uv (==0.11.26)",
+    "uvicorn (==0.40.0)",
+    "pandas (==2.2.2)",
+    "ipykernel (==6.28.0)",
+    "langchain (==1.2.8)",
+    "langchain-classic (==1.0.1)",
+    "langchain-community (==0.4.1)",
+    "langchain-core (==1.2.9)",
+    "langchain-openai (==1.1.7)",
+    "numpy (==2.1.0)",
+    "scikit-learn (==1.5.1)",
+    "openai (==2.17.0)",
+    "pydantic (==2.8.2)",
+    "pydantic-settings (==2.12.0)",
+    "python-dotenv (==1.2.1)",
+    "six (==1.16.0)",
+    "scipy (==1.13.1)",
+    "torch (==2.7.1)",
+    "torchvision (==0.22.1)",
+    "chromadb (==1.4.1)",
+    "sentence-transformers (==5.2.2)",
+    "jellyfish (>=1.2.1,<2.0.0)",
+    "beautifulsoup4 (==4.12.3)",
+    "schedule (>=1.2.2,<2.0.0)",
+    "playwright (>=1.62.0,<2.0.0)"
+]
+
+[tool.poetry]
+packages = [{include = "TurboApply", from = "src"}]
+
+[[tool.poetry.source]]
+name = "pytorch_cpu"
+url = "https://download.pytorch.org/whl/cpu"
+priority = "explicit"
+
+[tool.poetry.dependencies]
+torch = {source = "pytorch_cpu"}
+torchvision = {source = "pytorch_cpu"}
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
