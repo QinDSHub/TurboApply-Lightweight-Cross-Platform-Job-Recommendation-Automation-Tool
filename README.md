@@ -259,13 +259,13 @@ Last application > 30 days ago
 Must-apply
 
 This allows previously targeted companies to become relevant again after a reasonable interval.
-```
 
 (3) Rule 3 — Recent Opportunities First
 
 Among qualifying recommendations, more recently posted positions receive higher priority.
 
 The basic principle is: Use recentness to identify opportunities, historical application behavior to control repetition, and posting time to prioritize the final recommendation list.
+```
 
 ### 7. Evolution of the Architecture
 V1 — Fully Automated Workflow
@@ -375,16 +375,7 @@ This prevents the same opportunity from appearing repeatedly in the final recomm
 
 ### 10. Observed Efficiency Improvement
 
-Based on my personal experience:
-
-Metric	Job Platforms Directly	TurboApply
-Applications completed / hour	~1–2	~5–6
-Cross-platform coverage	Platform-by-platform	Multi-platform
-Duplicate handling	Primarily manual	Automated
-Recommendation	Manual screening	Rule-based
-Application history	Separate/manual tracking	Centralized dataset
-
-Previously, completing one meaningful application could take approximately one hour, including:
+Previously, completing one valid application could take approximately one hour, including:
 
 ```text
 Search
@@ -448,35 +439,20 @@ TurboApply is designed around a specific workflow bottleneck rather than trying 
 
 ### 12. Quick Start
 Requirements
-Dependency	Version
 Python	3.12.7
 Poetry	2.4.1
-Installation
 
-Clone the repository:
+Installation steps as below:
 
+(1) Clone the repository:
 git clone https://github.com/QinDSHub/TurboApply_Lightweight_Tool.git
 cd TurboApply_Lightweight_Tool
 
-Install dependencies:
-
+(2) Install dependencies:
 poetry install --no-root
-Prepare Raw HTML Data
 
-Search for relevant jobs on supported platforms.
-
-After applying filters such as:
-
-Position;
-Location;
-Posting date;
-
-save the result pages as:
-
-page_1.html
-page_2.html
-page_3.html
-...
+(3) Prepare Raw HTML Data
+Search for relevant jobs on supported platforms, such as LinkedIn and IrishJobs, using your preferred keywords. Save the downloaded HTML pages as page_1.html, page_2.html, etc. in the corresponding platform directory, as each platform has its own dedicated parser.
 
 For example:
 ```text
@@ -487,39 +463,33 @@ linkedin_raw_data/
 Configure the Pipeline
 ```
 
-Open:
+(4) Open:one_click_run.sh
 
-one_click_run.sh
-
-Configure:
-
+(5) Configure:
 linkedin_start_page
 linkedin_end_page
-
 irishjobs_start_page
 irishjobs_end_page
+needed_keywords_in_title — Keywords to include in job titles that are relevant to your job search.
+delete_words_in_title — Keywords to exclude from job titles. For example, if you are only interested in permanent positions, you can add part-time to filter out part-time roles.
+delete_words_in_company — Company names or keywords to exclude from the results. For example, if you want to filter out companies containing a specific keyword, add that keyword to this list.
 
-For example:
-
-linkedin_start_page=1
-linkedin_end_page=2
-Run
-poetry run bash one_click_run.sh
+(6) Run: poetry run bash one_click_run.sh
 
 The pipeline automatically performs:
 
 ```text
 Parsing
   ↓
-Preprocessing
-  ↓
-Feature Extraction
-  ↓
 Cross-Platform Merge
   ↓
 Deduplication
   ↓
 Historical Data Integration
+  ↓
+Data Preprocessing
+  ↓
+Feature Extraction
   ↓
 Recommendation
 ```
