@@ -6,6 +6,7 @@ TurboApply is a lightweight, rule-based, cross-platform job recommendation autom
 Instead of trying to help candidates find more jobs, TurboApply focuses on reducing the time spent on repetitive search, screening, duplicate checking, and cross-platform browsing.
 
 Search less. Decide faster. Apply better.
+
 In a nutshell, the steps are:
 - Download and unzip the repository (make sure Python and Poetry are installed).
 - Run `poetry install --no-root`.
