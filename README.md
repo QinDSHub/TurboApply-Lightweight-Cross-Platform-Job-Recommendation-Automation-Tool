@@ -1,11 +1,18 @@
 # TurboApply
-## A Lightweight, Rule-Based Job Recommendation Tool for More Efficient Job Search
+## A Lightweight, Cross-platform Job Recommendation Automation Tool for More Efficient Job Search
 
-TurboApply is a lightweight, rule-based job recommendation tool designed to help job seekers decide faster which opportunities are actually worth applying for.
+TurboApply is a lightweight, rule-based, cross-platform job recommendation automation tool designed to help job seekers decide faster which opportunities are actually worth applying for.
 
 Instead of trying to help candidates find more jobs, TurboApply focuses on reducing the time spent on repetitive search, screening, duplicate checking, and cross-platform browsing.
 
 Search less. Decide faster. Apply better.
+In a nutshell, the steps are:
+- Download and unzip the repository (make sure Python and Poetry are installed).
+- Run `poetry install --no-root`.
+- Download the required HTML files from LinkedIn and IrishJobs.
+- Update the relevant variables in `one_click_run.sh`.
+- Run `poetry run bash one_click_run.sh`.
+The recommendations for today will be generated in less than a minute, and you can apply directly by clicking the URLs provided in the recommendations.
 
 ### 1. Why TurboApply?
 
