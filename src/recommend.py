@@ -6,7 +6,9 @@ import warnings
 warnings.filterwarnings('ignore', category=FutureWarning)
 warnings.filterwarnings('ignore', category=UserWarning)
 
-def added_process(added_data_path_list:list, last_apply_path: Path, threshold: int):
+def added_process(added_data_path_list:list, last_apply_path: Path, threshold: int, 
+                  needed_keywords_in_title:str,
+                  delete_words_in_title:str):
       added = pd.DataFrame()
       for address in added_data_path_list:
             print(added.shape)
@@ -19,13 +21,13 @@ def added_process(added_data_path_list:list, last_apply_path: Path, threshold: i
       added = added.drop_duplicates(subset = ['company','title'],keep='first').reset_index(drop=True)
       print(" - Delete duplicate jobs with：", added.shape)
 
-      key_words = [x.lower() for x in ['AI', 'ML', 'Data', 'software', 'senior', 'engineer']]
+      key_words = [x.lower() for x in needed_keywords_in_title.split(',')]
       escaped_words1 = [re.escape(word) for word in key_words]
       pattern1 = '|'.join(escaped_words1)
       added = added[added['title'].str.contains(pattern1, na=False)]
 
-      delete_words = ['trainee', 'affairs', 'grain', 'part-time', 'part time', 'intern']
-      escaped_words2 = [re.escape(word) for word in delete_words]
+      # delete_words = ['trainee', 'affairs', 'grain', 'part-time', 'part time', 'intern']
+      escaped_words2 = [re.escape(word) for word in delete_words_in_title.split(',')]
       pattern2 = '|'.join(escaped_words2)
       added = added[~added['title'].str.contains(pattern2, na=False)]
 
@@ -33,7 +35,7 @@ def added_process(added_data_path_list:list, last_apply_path: Path, threshold: i
       added['start_salary'] = added['salary'].apply(lambda x:re.findall(r'[\d,]+',x)[0] if re.findall(r'[\d,]+',x) else '9999999')
       added['start_salary'] = added['start_salary'].apply(lambda x:int(str(x).replace(',', '')))
       if threshold is not None:
-          added = added[added['start_salary']>=threshold]      
+          added = added[added['start_salary']>=int(threshold)]      
       print(' - after data cleaning with ：', added.shape)
 
       if 'apply_date' in added.columns.tolist():
@@ -51,9 +53,10 @@ def added_process(added_data_path_list:list, last_apply_path: Path, threshold: i
       return data
 
 def main(main_table_path:Path, added_data_path_list: list, 
-         last_apply_path: Path, recommendation_path: Path, agent_key_words, threshold):
+         last_apply_path: Path, recommendation_path: Path, threshold,                  
+         needed_keywords_in_title:str,delete_words_in_title:str,delete_words_in_company:str):
 
-      new_df = added_process(added_data_path_list, last_apply_path, threshold)
+      new_df = added_process(added_data_path_list, last_apply_path, threshold, needed_keywords_in_title, delete_words_in_title)
 
       recommendation_tmp = pd.read_csv(recommendation_path)
       recommendation_tmp = recommendation_tmp[recommendation_tmp['recommend'].isin(['1',1])]
@@ -75,7 +78,7 @@ def main(main_table_path:Path, added_data_path_list: list,
       print(' - Delete duplicates job_id from main table，the increasal data with：', new_df.shape)
 
       new_df = new_df.merge(df_filtered[['company','apply_date_fill']], on = 'company', how='left')
-      new_df['apply_date'] = new_df['apply_date'].fillna(new_df['apply_date_fill'])
+      new_df.loc[new_df['apply_date_fill'].notnull(), 'apply_date'] = new_df['apply_date_fill']
       del new_df['apply_date_fill']
 
       new_df['last_apply_to_today'] = (pd.Timestamp.now()-pd.to_datetime(new_df['apply_date'])).dt.days
@@ -89,7 +92,7 @@ def main(main_table_path:Path, added_data_path_list: list,
       new_df.loc[new_df['period'].isin(['hours','hour', 'minutes', 'minute']), 'new_unit'] = '1'
       
       new_df = new_df[~new_df['title'].str.contains('data engineer')]
-      new_df = new_df[~new_df['company'].str.contains('|'.join(agent_key_words))]
+      new_df = new_df[~new_df['company'].str.contains('|'.join(delete_words_in_company.split(',')))]
 
       group1 = new_df[(new_df['apply_date'].isnull())&(new_df['new_period'].isin(['day','days']))&(new_df['new_unit'].isin([str(x) for x in range(1,8)]))]
 
@@ -99,14 +102,17 @@ def main(main_table_path:Path, added_data_path_list: list,
       recommendation = recommendation.sort_values(by=['new_period','new_unit','period','unit'],ascending=True).reset_index(drop=True)
       piority = {'minute':0, 'minutes':1, 'hour':2, 'hours':3, 'day':4 , 'days':5, 'week':6, 'weeks':7}
       recommendation['priority'] = recommendation['period'].map(piority)
-      recommendation = recommendation.sort_values(by=['new_period','new_unit','priority','unit'],ascending=True).reset_index(drop=True)
+
+      recommendation['priority'] = pd.to_numeric(recommendation['priority'])
+      recommendation['unit'] = pd.to_numeric(recommendation['unit'])
+
+      recommendation = recommendation.sort_values(by=['priority','unit'],ascending=True).reset_index(drop=True)
       print(f" - There are total {len(recommendation)} jobs to recommend to you！")
       recommendation['recommend'] = 1
       recommendation['apply_date'] = pd.Timestamp.now().strftime('%Y%m%d')
 
       need_cols = df.columns.tolist()
       recommendation = recommendation[need_cols]
-      recommendation = recommendation.sort_values(by=['posted_date'], ascending = True).reset_index(drop=True)
       recommendation.to_csv(recommendation_path, index=False, encoding = 'utf-8-sig')
       print(' - Today_recommendation.csv has been saved locally, you could apply right now！')
       
@@ -120,12 +126,18 @@ if __name__=='__main__':
       arg_parser.add_argument('--last_apply_path', default='../applied_data/last_apply_data.csv', help='your own historical apply data')
       arg_parser.add_argument('--recommendation_path', default='../today_recommendation.csv', help="the path to save recommendation for today!")
       arg_parser.add_argument('--threshold', type=int, default=None, help='salary threshold (optional; if not set, no filtering is applied)')
+      arg_parser.add_argument('--needed_keywords_in_title', type=str, default='', help='keywords in title to help filtering')
+      arg_parser.add_argument('--delete_words_in_title', type=str, default='', help='delete keywords in title')
+      arg_parser.add_argument('--delete_words_in_company', type=str, default='', help='delete keywords in company')
+
       args = arg_parser.parse_args()
-      
-      agent_key_words = ['human', 'recruitment', 'jobgether', 'recruit', 'fruition']
       main(Path(args.main_table_path), 
            args.added_data_path_list, 
            Path(args.last_apply_path), 
-           Path(args.recommendation_path), agent_key_words, args.threshold)
+           Path(args.recommendation_path), 
+           args.threshold,
+           args.needed_keywords_in_title,
+           args.delete_words_in_title,
+           args.delete_words_in_company)
       
 
