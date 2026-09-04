@@ -7,13 +7,17 @@ Instead of trying to help candidates find more jobs, TurboApply focuses on reduc
 
 Search less. Decide faster. Apply better.
 
-In a nutshell, the steps are:
-- Download and unzip the repository (make sure Python and Poetry are installed).
-- Run `poetry install --no-root`.
-- Download the required HTML files from LinkedIn and IrishJobs.
-- Update the relevant variables in `one_click_run.sh`.
-- Run `poetry run bash one_click_run.sh`.
+**In a nutshell, the steps are:**
+* **Download and unzip the repository (make sure Python and Poetry are installed).**
+* **Run `poetry install --no-root`.**
+* **Download the required HTML files from LinkedIn and IrishJobs.**
+* **Update the relevant variables in `one_click_run.sh`.**
+* **Run `poetry run bash one_click_run.sh`.**
 The recommendations for today will be generated in less than a minute, and you can apply directly by clicking the URLs provided in the recommendations.
+
+**Fun Scalability Ideas:**
+* **Expand job platform coverage:** Platforms like Indeed would also be valuable to integrate. You could simply download the Indeed HTML pages and use Claude Code to help build the corresponding parser scripts.
+* **Add customizable features:** We could further extend the tool with new functions based on specific needs—for example, using it to track company/job alerts for companies that don't provide their own job alert functionality.
 
 ### 1. Why TurboApply?
 
