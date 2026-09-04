@@ -5,7 +5,7 @@ TurboApply is a lightweight, rule-based, cross-platform job recommendation autom
 
 Instead of trying to help candidates find more jobs, TurboApply focuses on reducing the time spent on repetitive search, screening, duplicate checking, and cross-platform browsing.
 
-Search less. Decide faster. Apply better.
+**Search less. Decide faster. Apply better. Let automation handle the routine.**
 
 **In a nutshell, the steps are:**
 * **Download and unzip the repository (make sure Python and Poetry are installed).**
@@ -13,6 +13,7 @@ Search less. Decide faster. Apply better.
 * **Download the required HTML files from LinkedIn and IrishJobs.**
 * **Update the relevant variables in `one_click_run.sh`.**
 * **Run `poetry run bash one_click_run.sh`.**
+
 The recommendations for today will be generated in less than a minute, and you can apply directly by clicking the URLs provided in the recommendations.
 
 **Fun Scalability Ideas:**
