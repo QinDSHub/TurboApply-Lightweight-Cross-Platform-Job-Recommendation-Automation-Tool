@@ -18,7 +18,7 @@ The recommendations for today will be generated in less than a minute, and you c
 
 **🎯Fun Scalability Ideas:**
 * **Expand job platform coverage:** Platforms like Indeed would also be valuable to integrate. You could simply download the Indeed HTML pages and use Claude Code to help build the corresponding parser scripts.
-* **Add customizable features:** We could further extend the tool with new functions based on specific needs—for example, using it to track company/job alerts for companies that don't provide their own job alert functionality.
+* **Add customizable features:** You could directly extend the tool with new functions based on specific needs—for example, using it to track company/job alerts for companies that don't provide their own job alert functionality.
 
 ### 1. Why TurboApply?
 
