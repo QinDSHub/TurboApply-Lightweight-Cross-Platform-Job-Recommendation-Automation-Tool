@@ -5,13 +5,14 @@ set -e
 # pls do not leave space for below number
 # for example, "linkedin_start_page = 1" will not work.
 linkedin_start_page=1
-linkedin_end_page=2
+linkedin_end_page=1
 irishjobs_start_page=1
-irishjobs_end_page=2
+irishjobs_end_page=1
 
 needed_keywords_in_title="AI,ML,Data,software,senior,engineer"
 delete_words_in_title="trainee,affairs,grain,part-time,part time,intern,contract,product"
 delete_words_in_company="human,recruitment,jobgether,recruit,fruition,talent"
+job_alert_company="acompany, bcompany, ccompany"
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -33,7 +34,8 @@ echo -e "${YELLOW}🚀 Start data collecting and recommendation tasks${NC}"
     poetry run python recommend.py \
     --needed_keywords_in_title "$needed_keywords_in_title" \
     --delete_words_in_title "$delete_words_in_title" \
-    --delete_words_in_company "$delete_words_in_company"
+    --delete_words_in_company "$delete_words_in_company" \
+    --job_alert_company "$job_alert_company"
 )
 
 if [ $? -eq 0 ]; then

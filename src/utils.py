@@ -79,6 +79,11 @@ def clear_folder_os(folder_path):
             os.remove(item_path)
     print("Have clear raw data file for next round's using！")
 
+def clear_file_os(file_path):
+     if not os.path.exists(file_path):
+          return
+     os.remove(file_path)
+
 def get_all_jobs():
 
       import pandas as pd

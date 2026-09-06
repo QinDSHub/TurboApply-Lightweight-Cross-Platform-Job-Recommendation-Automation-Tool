@@ -3,12 +3,15 @@ from pathlib import Path
 from datetime import datetime
 import re, argparse
 import warnings
+from utils import clear_file_os
 warnings.filterwarnings('ignore', category=FutureWarning)
 warnings.filterwarnings('ignore', category=UserWarning)
 
 def added_process(added_data_path_list:list, last_apply_path: Path, threshold: int, 
                   needed_keywords_in_title:str,
-                  delete_words_in_title:str):
+                  delete_words_in_title:str,
+                  job_alert_company:str,
+                  job_alert_path:Path):
       added = pd.DataFrame()
       for address in added_data_path_list:
             print(added.shape)
@@ -41,6 +44,25 @@ def added_process(added_data_path_list:list, last_apply_path: Path, threshold: i
       if 'apply_date' in added.columns.tolist():
            del added['apply_date']
 
+      # Add company-level job alerts:
+      # Users define a list of target companies, and any newly posted job
+      # from those companies will be recommended regardless of previous
+      # applications or application timing.
+      # Only enable this feature for users with clearly defined target companies.
+      job_alert_company = [x.lower() for x in job_alert_company.split(',')]
+      new_alert_df = added[added['company'].str.contains('|'.join(job_alert_company))]
+      if len(new_alert_df)>0:
+            if 'recommend' in new_alert_df.columns.tolist():
+                  del new_alert_df['recommend']
+            if 'start_salary' in new_alert_df.columns.tolist():
+                  del new_alert_df['start_salary']
+            new_alert_df = new_alert_df.sort_values(by=['company','title']).reset_index(drop=True)
+            new_alert_df.to_csv(job_alert_path, index=False, encoding='utf-8-sig')
+            print('If you have job alert company list, you could apply right now!')
+      else:
+            clear_file_os(job_alert_path)
+            print('Today, there are no new jobs opened by your target companies!')
+
       last_df = pd.read_csv(last_apply_path)
       for col in last_df.columns.tolist():
             last_df[col] = last_df[col].apply(lambda x:str(x).lower())
@@ -54,9 +76,13 @@ def added_process(added_data_path_list:list, last_apply_path: Path, threshold: i
 
 def main(main_table_path:Path, added_data_path_list: list, 
          last_apply_path: Path, recommendation_path: Path, threshold,                  
-         needed_keywords_in_title:str,delete_words_in_title:str,delete_words_in_company:str):
+         needed_keywords_in_title:str,delete_words_in_title:str,
+         delete_words_in_company:str, job_alert_company:str,
+         job_alert_path:Path):
 
-      new_df = added_process(added_data_path_list, last_apply_path, threshold, needed_keywords_in_title, delete_words_in_title)
+      new_df = added_process(added_data_path_list, last_apply_path, threshold, 
+                             needed_keywords_in_title, delete_words_in_title,
+                             job_alert_company,job_alert_path)
 
       recommendation_tmp = pd.read_csv(recommendation_path)
       recommendation_tmp = recommendation_tmp[recommendation_tmp['recommend'].isin(['1',1])]
@@ -129,7 +155,8 @@ if __name__=='__main__':
       arg_parser.add_argument('--needed_keywords_in_title', type=str, default='', help='keywords in title to help filtering')
       arg_parser.add_argument('--delete_words_in_title', type=str, default='', help='delete keywords in title')
       arg_parser.add_argument('--delete_words_in_company', type=str, default='', help='delete keywords in company')
-
+      arg_parser.add_argument('--job_alert_company', type=str, default='', help='your target company list, apply once new jobs open')
+      arg_parser.add_argument('--job_alert_path', default='../job_alert_recommendation.csv', help="the path to save recommendation for your target companies!")
       args = arg_parser.parse_args()
       main(Path(args.main_table_path), 
            args.added_data_path_list, 
@@ -138,6 +165,9 @@ if __name__=='__main__':
            args.threshold,
            args.needed_keywords_in_title,
            args.delete_words_in_title,
-           args.delete_words_in_company)
+           args.delete_words_in_company,
+           args.job_alert_company,
+           Path(args.job_alert_path)
+           )
       
 

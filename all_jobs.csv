@@ -1,3 +1,2 @@
 ﻿job_id,title,company,location,salary,posted_date,job_url,scrape_date,recommend,apply_date
-id_number,abc,abc,"Dublin, County Dublin",€ Not Disclosed,4 hours ago,https://www.irishjobs.ie/job/,20260101,,20260101
-id_number,abc,abc,"Dublin, County Dublin",€ Not Disclosed,4 hours ago,https://www.irishjobs.ie/job/,20260101,1,20260101
+id_number,abc,abc,"Dublin, County Dublin",€ Not Disclosed,1 hour ago,https://www.irishjobs.ie/job/,20260101,1,20260101
