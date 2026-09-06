@@ -25,6 +25,7 @@ I think you can probably already imagine what the agent main design could look l
 If you’re particularly interested, feel free to message or email me. I’d be happy to explain the idea and even demonstrate it on my computer. 😉
 
 ### 📌 Version Iteration Records
+For a detailed look at the architecture, keep reading below.
 **V1 — Fully Automated**
 * **Zero-touch:** Automated crawler → preprocessing → recommendation.
 * **Efficient but platform-dependent:** Limited by LinkedIn/IrishJobs access and coverage.
