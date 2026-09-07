@@ -22,10 +22,8 @@ The recommendations for today will be generated in less than a minute, and you c
 * **Add customizable feature (company-level):** While the current tool is designed at the **job level**, these extensions could bring it to the **company level**. The tool can be easily extended with feature tailored to specific needs—for example, tracking job openings or company updates for employers that don’t offer their own job-alert functionality. 
 * **Add an agent to expand application coverage (company-level):** I desiged and added an agent for the tool. After running this agent, you could spend more time to search and apply manually through individual company career websites, but I believe it would be well worth the effort—and could become a powerful extension of the tool.
 I think you can probably already imagine what the agent main design could look like.
-
-* The core idea behind the business logic is quite interesting, so I’m still refining the design and implementation. I plan to document it properly and release a public version in the future.
-
-* If you’re particularly interested, pls feel free to message or email me. I’d be happy to share and demonstrate it.
+The core idea behind the business logic is quite interesting, so I’m still refining the design and implementation. I plan to document it properly and release a public version in the future.
+If you’re particularly interested, pls feel free to message or email me. I’d be happy to share and demonstrate it.
 
 * **Add an agent to improve automation:** Currently, users need to upload their historical application data using a fixed CSV template. I’m exploring whether we could introduce an agent to automatically identify and map relevant columns from an uploaded CSV to our standardized schema. For example, the agent could recognize that columns such as `company`, `company_name`, or `companies` correspond to the standardized `company` field, while `apply_date`, `apply_dt`, or `date` correspond to `apply_date`. It could then extract and normalize the relevant fields and generate a standardized CSV for downstream processing. This would make the tool more flexible and user-friendly, allowing users to upload their own historical application data without having to manually restructure it according to a predefined template.
 
