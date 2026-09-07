@@ -54,8 +54,8 @@ For a detailed look at the architecture, keep reading below.
 * Currently running locally and available for an on-computer demonstration.
 
 **V2.4 — Intelligent Historical Data Agent** *(In Development)*
-* Developing an agent to expand the workflow from job discovery at company-level application coverage.
-* Currently running locally and available for an on-computer demonstration.
+* Developing an agent to automatically identify, map, and normalize columns from users’ historical application data into a standardized schema.
+* Enabling users to upload their own CSV files without following a fixed template, making historical data ingestion more flexible and automated.
 
 
 ### 1. Why TurboApply?
