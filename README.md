@@ -27,6 +27,36 @@ If you’re particularly interested, pls feel free to message or email me. I’d
 
 * **Add an agent to improve automation:** Currently, users need to upload their historical application data using a fixed CSV template. I’m exploring whether we could introduce an agent to automatically identify and map relevant columns from an uploaded CSV to our standardized schema. For example, the agent could recognize that columns such as `company`, `company_name`, or `companies` correspond to the standardized `company` field, while `apply_date`, `apply_dt`, or `date` correspond to `apply_date`. It could then extract and normalize the relevant fields and generate a standardized CSV for downstream processing. This would make the tool more flexible and user-friendly, allowing users to upload their own historical application data without having to manually restructure it according to a predefined template.
 
+### 📌 Version Iteration Records
+For a detailed look at the architecture, keep reading below.
+
+**V1 — Fully Automated**
+* **Zero-touch:** Automated crawler → preprocessing → recommendation.
+* **Efficient but platform-dependent:** Limited by LinkedIn/IrishJobs access and coverage.
+* **Core issue:** Incomplete job coverage as listing volume increased.
+* **Lesson:** More crawler complexity ≠ sustainable scalability.
+
+**V2 — Semi-Automated**
+* **Hybrid:** Manual HTML download → automated parsing → deduplication → historical integration → recommendation.
+* **Key improvement:** Decouples data acquisition from data processing.
+* **Benefits:** More portable, flexible, maintainable, and robust.
+* **Outcome:** Evolves TurboApply from a platform-specific crawler into a portable job-search intelligence layer.
+
+**V2.1 — Optimized Recommendation Ordering**
+* Improved the recommendation-ranking and ordering logic to make job prioritization more effective.
+
+**V2.2 — Company-Level Job Alerts** *(Current GitHub Version)*
+* Added company-level job alert functionality, extending the tool beyond individual job-level tracking.
+* Enables users to monitor opportunities at the company level, without being limited by the recommendation mechanism.
+
+**V2.3 — Company-Level Application Agent** *(In Development)*
+* Developing an agent to expand the workflow from job discovery at company-level application coverage.
+* Currently running locally and available for an on-computer demonstration.
+
+**V2.4 — Intelligent Historical Data Agent** *(In Development)*
+* Developing an agent to expand the workflow from job discovery at company-level application coverage.
+* Currently running locally and available for an on-computer demonstration.
+
 
 ### 1. Why TurboApply?
 
