@@ -10,8 +10,8 @@ Instead of trying to help candidates find more jobs, TurboApply focuses on reduc
 ### ⚡In a nutshell, the steps are:
 * **Download and unzip the repository. Make sure right version Python and Poetry are installed.**
 * **Install the dependencies: poetry install --no-root**
-* **Update your historical application data in ./applied_data/last_apply_data. This step is optional and can be skipped.**
-* **Download the relevant job-listing HTML pages from LinkedIn and IrishJobs, and save them as page_1.html in the corresponding platform directories.**
+* **Update your historical application data in ./applied_data/last_apply_data.csv. This step is optional and can be skipped.**
+* **Download the relevant job-listing HTML pages from LinkedIn and IrishJobs, and save them as page_xx.html in the corresponding platform directories.**
 * **Update the relevant variables in one_click_run.sh.**
 * **Run the complete pipeline: poetry run bash one_click_run.sh**
 
@@ -21,35 +21,8 @@ The recommendations for today will be generated in less than a minute, and you c
 * **Expand job platform coverage:** Platforms like Indeed would be valuable additions. Simply download the Indeed HTML pages and use Claude Code to build the corresponding parser scripts.
 * **Add customizable feature (company-level):** While the current tool is designed at the **job level**, these extensions could bring it to the **company level**. The tool can be easily extended with feature tailored to specific needs—for example, tracking job openings or company updates for employers that don’t offer their own job-alert functionality. 
 * **Add an agent to expand application coverage (company-level):** I desiged and added an agent for the tool. After running this agent, you could spend more time to search and apply manually through individual company career websites, but I believe it would be well worth the effort—and could become a powerful extension of the tool.
-I think you can probably already imagine what the agent main design could look like. I’ll update and release this part of the code once I’m employed.
-If you’re particularly interested, feel free to message or email me. I’d be happy to explain the idea and even demonstrate it on my computer. 😉
-
-### 📌 Version Iteration Records
-For a detailed look at the architecture, keep reading below.
-
-**V1 — Fully Automated**
-* **Zero-touch:** Automated crawler → preprocessing → recommendation.
-* **Efficient but platform-dependent:** Limited by LinkedIn/IrishJobs access and coverage.
-* **Core issue:** Incomplete job coverage as listing volume increased.
-* **Lesson:** More crawler complexity ≠ sustainable scalability.
-
-**V2 — Semi-Automated**
-* **Hybrid:** Manual HTML download → automated parsing → deduplication → historical integration → recommendation.
-* **Key improvement:** Decouples data acquisition from data processing.
-* **Benefits:** More portable, flexible, maintainable, and robust.
-* **Outcome:** Evolves TurboApply from a platform-specific crawler into a portable job-search intelligence layer.
-
-**V2.1 — Optimized Recommendation Ordering**
-* Improved the recommendation-ranking and ordering logic to make job prioritization more effective.
-
-**V2.2 — Company-Level Job Alerts** *(Current GitHub Version)*
-* Added company-level job alert functionality, extending the tool beyond individual job-level tracking.
-* Enables users to monitor opportunities at the company level, without being limited by the recommendation mechanism.
-
-**V2.3 — Company-Level Application Agent** *(In Development)*
-* Developing an agent to expand the workflow from job discovery at company-level application coverage.
-* Currently running locally and available for an on-computer demonstration.
-
+I think you can probably already imagine what the agent main design could look like. The core idea behind the business logic is quite interesting, so I’m still refining the design and implementation. I plan to document it properly and release a public version in the future.
+If you’re particularly interested, pls feel free to message or email me. I’d be happy to share and demonstrate it.
 
 ### 1. Why TurboApply?
 
