@@ -58,6 +58,7 @@ For a detailed look at the architecture, keep reading below.
 * Enabling users to upload their own CSV files without following a fixed template, making historical data ingestion more flexible and automated.
 
 
+  
 ### 1. Why TurboApply?
 
 For intensive job seekers, the biggest challenge is often not a lack of opportunities.
