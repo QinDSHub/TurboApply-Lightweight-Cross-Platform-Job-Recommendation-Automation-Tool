@@ -36,28 +36,18 @@ For a detailed look at the architecture, keep reading below.
 * **Core issue:** Incomplete job coverage as listing volume increased.
 * **Lesson:** More crawler complexity ≠ sustainable scalability.
 
-**V2 — Semi-Automated**
+**V2.0.0 — Semi-Automated**
 * **Hybrid:** Manual HTML download → automated parsing → deduplication → historical integration → recommendation.
 * **Key improvement:** Decouples data acquisition from data processing.
 * **Benefits:** More portable, flexible, maintainable, and robust.
 * **Outcome:** Evolves TurboApply from a platform-specific crawler into a portable job-search intelligence layer.
+* **Optimized Recommendation Ordering:** Improved the recommendation-ranking and ordering logic to make job prioritization more effective.
+* **Company-Level Job Alerts:** Added company-level job alert functionality, extending the tool beyond individual job-level tracking. Enables users to monitor opportunities at the company level, without being limited by the recommendation mechanism.
 
-**V2.1 — Optimized Recommendation Ordering**
-* Improved the recommendation-ranking and ordering logic to make job prioritization more effective.
-
-**V2.2 — Company-Level Job Alerts** *(Current GitHub Version)*
-* Added company-level job alert functionality, extending the tool beyond individual job-level tracking.
-* Enables users to monitor opportunities at the company level, without being limited by the recommendation mechanism.
-
-**V2.3 — Company-Level Application Agent** *(In Development)*
-* Developing an agent to expand the workflow from job discovery at company-level application coverage.
-* Currently running locally and available for an on-computer demonstration.
-
-**V2.4 — Intelligent Historical Data Agent** *(In Development)*
-* Developing an agent to automatically identify, map, and normalize columns from users’ historical application data into a standardized schema.
-* Enabling users to upload their own CSV files without following a fixed template, making historical data ingestion more flexible and automated.
-
-
+**V2.1.0 — Optimization** *(Current GitHub Version - V2.1.0)*
+* **Centralize configuration variables:** Move configurable variables into config.yaml for easier and more consistent management.
+* **Company-Level Job Alerts:** Developing an agent to expand the workflow from job discovery at company-level application coverage. Currently running locally and available for an on-computer demonstration.
+* **Intelligent Historical Data Agent:** Developing an agent to automatically identify, map, and normalize columns from users’ historical application data into a standardized schema. Enabling users to upload their own CSV files without following a fixed template, making historical data ingestion more flexible and automated.
   
 ### 1. Why TurboApply?
 
