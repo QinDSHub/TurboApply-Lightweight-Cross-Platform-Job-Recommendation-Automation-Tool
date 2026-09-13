@@ -24,8 +24,10 @@ The recommendations for today will be generated in less than a minute, and you c
 I think you can probably already imagine what the agent main design could look like.
 The core idea behind the business logic is quite interesting, so I’m still refining the design and implementation. I plan to document it properly and release a public version in the future.
 If you’re particularly interested, pls feel free to message or email me. I’d be happy to share and demonstrate it.
-
 * **Add an agent to improve automation:** Currently, users need to upload their historical application data using a fixed CSV template. I’m exploring whether we could introduce an agent to automatically identify and map relevant columns from an uploaded CSV to our standardized schema. For example, the agent could recognize that columns such as `company`, `company_name`, or `companies` correspond to the standardized `company` field, while `apply_date`, `apply_dt`, or `date` correspond to `apply_date`. It could then extract and normalize the relevant fields and generate a standardized CSV for downstream processing. This would make the tool more flexible and user-friendly, allowing users to upload their own historical application data without having to manually restructure it according to a predefined template.
+
+### 📌 Version Iteration Records
+For a detailed look at the architecture, keep reading below.
 
 **V1.0.0 — Fully Automated**
 * **Zero-touch:** Automated crawler → preprocessing → recommendation.
@@ -33,18 +35,14 @@ If you’re particularly interested, pls feel free to message or email me. I’d
 * **Core issue:** Incomplete job coverage as listing volume increased.
 * **Lesson:** More crawler complexity ≠ sustainable scalability.
 
-**V2.0.0 — Semi-Automated**
+**V2.0.0 — Semi-Automated** *(Current GitHub Version - V2.0.0)*
 * **Hybrid:** Manual HTML download → automated parsing → deduplication → historical integration → recommendation.
 * **Key improvement:** Decouples data acquisition from data processing.
 * **Benefits:** More portable, flexible, maintainable, and robust.
 * **Outcome:** Evolves TurboApply from a platform-specific crawler into a portable job-search intelligence layer.
+* **Optimized Recommendation Ordering:** Improved the recommendation-ranking and ordering logic to make job prioritization more effective.
+* **Company-Level Job Alerts:** Added company-level job alert functionality, extending the tool beyond individual job-level tracking. Enables users to monitor opportunities at the company level, without being limited by the recommendation mechanism.
 
-**Optimized Recommendation Ordering**
-* Improved the recommendation-ranking and ordering logic to make job prioritization more effective.
-
-**Company-Level Job Alerts** *(Current GitHub Version - V2.0.0)*
-* Added company-level job alert functionality, extending the tool beyond individual job-level tracking.
-* Enables users to monitor opportunities at the company level, without being limited by the recommendation mechanism.
 
 ### 1. Why TurboApply?
 
