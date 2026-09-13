@@ -1,4 +1,4 @@
-apply_data_path: "applied_data/"
+apply_data_path: "your own apply history data save path"
 save_file: "applied_data/last_apply_data.csv"
 
 data_dir: './'
