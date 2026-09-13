@@ -1,0 +1,16 @@
+apply_data_path: "D:/000 - 找工作（自2025年12月9日起算）/1 - 简历CV和投递/20251209 - 投递记录/2026年"
+save_file: "mine/applied_data/last_apply_data.csv"
+
+data_dir: 'mine'
+
+irishjobs_html_data_dir: 'mine/irishjobs_raw_data'
+irishjobs_filename_added: 'irishjobs_data_added.csv'
+irishjobs_filename: "irishjobs_data.csv"
+
+linkedin_html_data_dir: "mine/linkedin_raw_data"
+linkedin_filename_added: 'linkedin_data_added.csv'
+linkedin_filename: 'linkedin_data.csv'
+
+main_table_path: 'mine/all_jobs.csv'
+recommendation_path: 'mine/today_recommendation.csv'
+job_alert_path: 'mine/job_alert_recommendation.csv'
