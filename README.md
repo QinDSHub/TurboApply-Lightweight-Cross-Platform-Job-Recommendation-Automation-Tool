@@ -36,19 +36,27 @@ For a detailed look at the architecture, keep reading below.
 * **Core issue:** Incomplete job coverage as listing volume increased.
 * **Lesson:** More crawler complexity ≠ sustainable scalability.
 
-**V2.0.0 — Semi-Automated**
+**V2.0.0 — Semi-Automated** *(GitHub Version - V2.0.0)*
 * **Hybrid:** Manual HTML download → automated parsing → deduplication → historical integration → recommendation.
 * **Key improvement:** Decouples data acquisition from data processing.
 * **Benefits:** More portable, flexible, maintainable, and robust.
 * **Outcome:** Evolves TurboApply from a platform-specific crawler into a portable job-search intelligence layer.
 * **Optimized Recommendation Ordering:** Improved the recommendation-ranking and ordering logic to make job prioritization more effective.
+
+**V2.1.0 — Centralize configuration variables and add job alerts** *(Current GitHub Version - V2.1.0)*
+* **Centralize configuration:** Move configurable variables into config.yaml for easier and more consistent management.
 * **Company-Level Job Alerts:** Added company-level job alert functionality, extending the tool beyond individual job-level tracking. Enables users to monitor opportunities at the company level, without being limited by the recommendation mechanism.
 
-**V2.1.0 — Optimization** *(Current GitHub Version - V2.1.0)*
-* **Centralize configuration variables:** Move configurable variables into config.yaml for easier and more consistent management.
-* **Company-Level Job Alerts:** Developing an agent to expand the workflow from job discovery at company-level application coverage. Currently running locally and available for an on-computer demonstration.
+**GitHub Version - Add an AI Agent** *(In development)*
+* **Add an agent to expand application coverage (company-level):** Added an AI agent that identifies top-k companies in the same industries as companies that have already invited you to interviews. The underlying logic is that interview opportunities indicate a potential fit for similar roles, making companies in the same industry promising targets for further applications. The agent generates a prioritized company list, allowing users to apply directly through individual company career websites.
+
+**GitHub Version - Optimize Job Extraction & Automation** *(In development)*
 * **Intelligent Historical Data Agent:** Developing an agent to automatically identify, map, and normalize columns from users’ historical application data into a standardized schema. Enabling users to upload their own CSV files without following a fixed template, making historical data ingestion more flexible and automated.
-  
+
+**GitHub Version - Logging Improvements** *(In development)*
+* **Improve logging:** Replace print statements used for debugging with Python's built-in logging module to improve scalability, maintainability, and debugging.
+
+
 ### 1. Why TurboApply?
 
 For intensive job seekers, the biggest challenge is often not a lack of opportunities.
