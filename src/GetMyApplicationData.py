@@ -1,18 +1,3 @@
-"""
-**Part 1:** Extract `company` and `applied_date`.
-
-**Part 2:** Match registered company names with the platform's formal company names.
-For example: `ABC` → `ABC Company`.
-
-**Tested approaches:**
-**Sentence Transformers** — semantic matching and normalization.
-**OpenAI Text Embeddings API** — Top-1 similarity search.
-**LinkTransformer** — entity matching.
-**Jaro-Winkler** — similarity + threshold; **best performance**, but manual matching is still needed for cold-start companies.
-
-Suggest to gain your own apply data aligned with the format in ../applied_data/last_apply_data.csv, also you could ignore it.
-"""
-
 import numpy as np
 import pandas as pd
 from pathlib import Path
