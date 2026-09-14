@@ -32,10 +32,10 @@ For a detailed look at the architecture, keep reading below.
 * **Benefits:** More portable, flexible, maintainable, and robust.
 * **Outcome:** Evolves TurboApply from a platform-specific crawler into a portable job-search intelligence layer.
 * **Optimized Recommendation Ordering:** Improved the recommendation-ranking and ordering logic to make job prioritization more effective.
+* **Company-Level Job Alerts:** Added company-level job alert functionality, extending the tool beyond individual job-level tracking. Enables users to monitor opportunities at the company level, without being limited by the recommendation mechanism.
 
 **V2.1.0 — Centralize configuration variables and add job alerts** *(Current GitHub Version - V2.1.0)*
-* **Centralize configuration:** Move configurable variables into config.yaml for easier and more consistent management.
-* **Company-Level Job Alerts:** Added company-level job alert functionality, extending the tool beyond individual job-level tracking. Enables users to monitor opportunities at the company level, without being limited by the recommendation mechanism.
+* **Centralize configuration:** Move all scattered configurable variables into config.yaml for easier and more consistent management.
 
 **GitHub Version - Add an AI Agent** *(--In development)*
 * **Add an agent to expand application coverage (company-level):** Added an AI agent that identifies top-k companies in the same industries as companies that have already invited you to interviews. The underlying logic is that interview opportunities indicate a potential fit for similar roles, making companies in the same industry promising targets for further applications. The agent generates a prioritized company list, allowing users to apply directly through individual company career websites.
