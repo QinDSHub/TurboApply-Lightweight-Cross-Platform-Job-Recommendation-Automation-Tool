@@ -288,7 +288,6 @@ if __name__ == "__main__":
         else:
             print(f"[WARN] File not found: {file_path}")
 
-    # --- 输出文件名：total 用 linkedin_filename，增量用 linkedin_filename_added ---
     if args.is_total:
         output_name = cfg["linkedin_filename"]
     else:
@@ -297,5 +296,4 @@ if __name__ == "__main__":
     save_jobs_to_csv(all_jobs, data_dir / output_name)
     print("[INFO] All data saved locally!")
 
-    # 清理 raw html，方便下次运行
-    # clear_folder_os(html_data_dir)
+    clear_folder_os(html_data_dir)

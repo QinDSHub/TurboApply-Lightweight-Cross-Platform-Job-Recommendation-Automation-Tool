@@ -205,5 +205,4 @@ if __name__ == "__main__":
             is_total=args.is_total,
         )
     finally:
-        # clear_folder_os(html_data_dir)
-        print('yeah')
+        clear_folder_os(html_data_dir)

@@ -20,39 +20,41 @@ import re
 import argparse
 from utils import load_config
 
-def parse_applied_data(apply_data_path: Path) -> pd.DataFrame:
-    if not apply_data_path.exists():
-        raise FileNotFoundError(f"apply_data_path not found: {apply_data_path}")
-    if not apply_data_path.is_dir():
-        raise NotADirectoryError(f"Not a directory: {apply_data_path}")
+def parse_applied_data(apply_data_path: Path)->pd.DataFrame:
+      all_file_names = []
+      for p in apply_data_path.iterdir():
+            for files in p.iterdir():
+                  all_file_names.append(files.name)
+      print(f"Have applied {len(all_file_names)} jobs")
 
-    all_file_names = []
-    for p in apply_data_path.iterdir():
-        if not p.is_dir():
-            continue
-        for f in p.iterdir():
-            if f.is_file() and not f.name.startswith('.'):
-                all_file_names.append(f.name)
-
-    print(f"[INFO] Total applied jobs: {len(all_file_names)}")
-
-    datas = []
-    for name in all_file_names:
-        raw_company = re.split(r'[,，]', name)[0].strip()
-        company = raw_company if raw_company else 'Unknown'
-
-        parts = re.split(r'[,，]', name)
-        position = parts[1].strip() if len(parts) > 1 and parts[1].strip() else 'Unknown'
-
-        m = re.search(r'(\d{8})', name)
-        date = m.group(1) if m else '20260101'
-
-        datas.append([company, position, date])
-
-    df = pd.DataFrame(datas, columns=['company', 'title', 'apply_date'])
-    df['company'] = df['company'].str.lower()
-    print(f"[INFO] Parsed shape: {df.shape}")
-    return df
+      datas = []
+      for name in all_file_names:
+            lst = name.split('-')
+            if not lst:
+                  continue
+            
+            company = re.split('[,，]', lst[0])[0] if lst[0] else 'Unknown'
+            
+            try:
+                  parts = re.split('[,，]', lst[0])
+                  position = parts[1] if len(parts) > 1 else 'AI/ML Engineer'
+            except (IndexError, AttributeError):
+                  position = 'AI/ML Engineer'
+            
+            try:
+                  if len(lst) > 1 and lst[-1]:
+                        date = lst[-1].split()[0] 
+                  else:
+                        date = '20260701'
+            except (IndexError, AttributeError):
+                  date = '20260701'
+            
+            datas.append([company, position, date])
+            
+      cols = ['company', 'title', 'apply_date']
+      df = pd.DataFrame(datas, columns=cols)
+      df['company'] = df['company'].apply(lambda x:str(x).lower())
+      return df
 
 if __name__ == "__main__":
     PROJECT_ROOT = Path(__file__).resolve().parent.parent

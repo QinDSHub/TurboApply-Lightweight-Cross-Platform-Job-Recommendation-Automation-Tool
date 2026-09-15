@@ -1,54 +1,62 @@
-*.log
-*.pyc
-__pycache__/
-*.zip
-*.tar.gz
-.git/
-
-.doc
-.docx
-others/
+# ========== Self-defined for the project ==========
 mine/
 test/
-outputs/
-/.ipynb_checkpoints
+my_config.yaml
+my_one_click_run.sh
+
+# ========== Python ==========
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
 .ipynb_checkpoints/
-.env
-.DS_Store
-node_modules
-dist
-.vscode
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.pnpm-debug.log*
-coverage
+/.ipynb_checkpoints
 .cache
-.idea
-*.iml
-*.sublime-project
-*.sublime-workspace
-*.swp
-*.bak
+
+# ========== log / temp / output ==========
+*.log
+*.out
+*.pid
+logs
+!logs/.gitkeep
 *.tmp
+*.bak
 *.old
 *.orig
 *.rej
+*.swp
+
+# ========== zip package ==========
+*.zip
+*.tar.gz
+
+# ========== docs ==========
+*.doc
+*.docx
+*.txt
+!requirements.txt
+!README.txt
+
+# ========== Java / JVM ==========
 *.class
 *.jar
 *.war
 *.ear
+
+# ========== local packages ==========
 *.exe
 *.dll
 *.so
 *.dylib
 *.obj
-*.pyc
-*.pyo
-*.pyd
-*.class
-*.log
-*.out
-*.pid
+
+# ========== IDE ==========
+.vscode
+.idea
+*.iml
+*.sublime-project
+*.sublime-workspace
+
+# ========== env / system ==========
+.env
+.DS_Store
