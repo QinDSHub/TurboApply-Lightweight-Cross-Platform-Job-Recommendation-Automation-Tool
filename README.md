@@ -12,20 +12,10 @@ Instead of trying to help candidates find more jobs, TurboApply focuses on reduc
 * **Install the dependencies: poetry install --no-root**
 * **Update your historical application data in ./applied_data/last_apply_data.csv. This step is optional and can be skipped.**
 * **Download the relevant job-listing HTML pages from LinkedIn and IrishJobs, and save them as page_xx.html in the corresponding platform directories.**
+* **Update the relevant variables in config.yaml.**
 * **Update the relevant variables in one_click_run.sh.**
-* **Run the complete pipeline: poetry run bash one_click_run.sh**
-
-The recommendations for today will be generated in less than a minute, and you can apply directly by clicking the URLs provided in the recommendations.
-
-### 🎯Fun Scalability Functions:
-* **Expand job platform coverage:** Platforms like Indeed would be valuable additions. Simply download the Indeed HTML pages and use Claude Code to build the corresponding parser scripts.
-* **Add customizable feature (company-level):** While the current tool is designed at the **job level**, these extensions could bring it to the **company level**. The tool can be easily extended with feature tailored to specific needs—for example, tracking job openings or company updates for employers that don’t offer their own job-alert functionality. 
-* **Add an agent to expand application coverage (company-level):** I desiged and added an agent for the tool. After running this agent, you could spend more time to search and apply manually through individual company career websites, but I believe it would be well worth the effort—and could become a powerful extension of the tool.
-I think you can probably already imagine what the agent main design could look like.
-The core idea behind the business logic is quite interesting, so I’m still refining the design and implementation. I plan to document it properly and release a public version in the future.
-If you’re particularly interested, pls feel free to message or email me. I’d be happy to share and demonstrate it.
-
-* **Add an agent to improve automation:** Currently, users need to upload their historical application data using a fixed CSV template. I’m exploring whether we could introduce an agent to automatically identify and map relevant columns from an uploaded CSV to our standardized schema. For example, the agent could recognize that columns such as `company`, `company_name`, or `companies` correspond to the standardized `company` field, while `apply_date`, `apply_dt`, or `date` correspond to `apply_date`. It could then extract and normalize the relevant fields and generate a standardized CSV for downstream processing. This would make the tool more flexible and user-friendly, allowing users to upload their own historical application data without having to manually restructure it according to a predefined template.
+* **Run the complete pipeline: poetry run bash one_click_run.sh.**
+* **Today's recommendations and your job_alert_company_list will be generated in less than a minute, with direct application links provided for each recommendation.**
 
 ### 📌 Version Iteration Records
 For a detailed look at the architecture, keep reading below.
@@ -44,10 +34,23 @@ For a detailed look at the architecture, keep reading below.
 * **Optimized Recommendation Ordering:** Improved the recommendation-ranking and ordering logic to make job prioritization more effective.
 * **Company-Level Job Alerts:** Added company-level job alert functionality, extending the tool beyond individual job-level tracking. Enables users to monitor opportunities at the company level, without being limited by the recommendation mechanism.
 
-**V2.1.0 — Optimization** *(Current GitHub Version - V2.1.0)*
-* **Centralize configuration variables:** Move configurable variables into config.yaml for easier and more consistent management.
-* **Company-Level Job Alerts:** Developing an agent to expand the workflow from job discovery at company-level application coverage. Currently running locally and available for an on-computer demonstration.
+**V2.1.0 — Centralize configuration variables and add job alerts**
+* **Centralize configuration:** Move all scattered configurable variables into config.yaml for easier and more consistent management.
+
+**V2.2.0 — Recommendation Optimization & Optional Peak-Period Mode**
+* **Optimize `recommendation.py`:** Refactor and streamline the recommendation logic to improve code maintainability and readability.
+* **Apply all jobs posted today during peak periods:** Add an optional mode that bypasses the custom recommendation mechanism during peak application periods. Instead, all jobs posted today are prioritized and processed based on their posting time.
+
+**GitHub Version - Add an AI Agent** *(--In development)*
+* **Add an agent to expand application coverage (company-level):** Added an AI agent that identifies top-k companies in the same industries as companies that have already invited you to interviews. The underlying logic is that interview opportunities indicate a potential fit for similar roles, making companies in the same industry promising targets for further applications. The agent generates a prioritized company list, allowing users to apply directly through individual company career websites.
+
+**GitHub Version - Optimize Job Extraction & Automation** *(--In development)*
 * **Intelligent Historical Data Agent:** Developing an agent to automatically identify, map, and normalize columns from users’ historical application data into a standardized schema. Enabling users to upload their own CSV files without following a fixed template, making historical data ingestion more flexible and automated.
+
+**GitHub Version - Logging Improvements** *(--In development)*
+* **Improve logging:** Replace print statements used for debugging with Python's built-in logging module to improve scalability, maintainability, and debugging.
+
+---
   
 ### 1. Why TurboApply?
 
