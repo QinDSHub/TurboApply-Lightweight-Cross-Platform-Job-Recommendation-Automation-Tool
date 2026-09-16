@@ -136,7 +136,7 @@ def main(main_table_path:Path, added_data_path_list: list,
       company_lower_set = set(new_df['company'].unique().tolist())
       df_filtered = df[df['company'].isin(company_lower_set)]
       # must transfer apply date into dat format
-      df_filtered['apply_date'] = pd.to_datetime(df_filtered[])
+      df_filtered['apply_date'] = pd.to_datetime(df_filtered['apply_date'], format='%Y%m%d', errors='coerce')
       df_filtered = df_filtered.sort_values(by=['company','apply_date'], ascending=False).drop_duplicates(subset='company',keep='first').reset_index(drop=True)
       print('- double check last apply date to be unique for last one: ',df_filtered.shape[0]==df_filtered['company'].nunique())
       df_filtered.rename(columns={'apply_date':'apply_date_fill'},inplace=True)
