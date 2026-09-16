@@ -1,18 +1,15 @@
 #!/bin/bash
 
-set -e
-
 linkedin_start_page=1
 linkedin_end_page=1
+
 irishjobs_start_page=1
 irishjobs_end_page=1
 
-config="$(pwd)/config.yaml"
+# when you have new interview company, you could update it as "True"
+open_similar_company_recommend="False"
 
-title_filter_keywords="AI,ML,Data,software,senior,engineer"
-delete_words_in_title="trainee,affairs,grain,part-time,part time,intern,product"
-delete_words_in_company="human,recruitment,jobgether,recruit,fruition,talent"
-job_alert_company="acompany,bcompany"
+config="$(pwd)/config.yaml"
 
 
 RED='\033[0;31m'
@@ -20,29 +17,29 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 
-echo -e "${YELLOW}🚀 Start parsing and recommending${NC}"
+echo -e "${YELLOW}🚀 Starting parsing and recommending${NC}"
 
-(
-    cd src || { echo -e "${RED}❌ No src directory${NC}"; exit 1; }
-    
+if (
+    cd src || { echo -e "${RED}❌ no src path${NC}"; exit 1; }
+
     echo -e "${GREEN}[1/3] Parse LinkedIn Data...${NC}"
     poetry run python parser_linkedin.py --start_page $linkedin_start_page --end_page $linkedin_end_page --config $config || exit 1
-    
+
     echo -e "${GREEN}[2/3] Parse IrishJobs Data...${NC}"
     poetry run python parser_irishjobs.py --start_page $irishjobs_start_page --end_page $irishjobs_end_page --config $config || exit 1
-    
-    echo -e "${GREEN}[3/3] Generate Recommendation...${NC}"
-    poetry run python recommend.py \
-    --title_filter_keywords "$title_filter_keywords" \
-    --delete_words_in_title "$delete_words_in_title" \
-    --delete_words_in_company "$delete_words_in_company" \
-    --job_alert_company "$job_alert_company" \
-    --config $config || exit 1
-)
 
-if [ $? -eq 0 ]; then
+    if [ "$open_similar_company_recommend" = "True" ]; then
+        echo -e "Starting chain agents to recommend based on your interview companies"
+        poetry run python company_recommend.py --config "$config" || exit 1
+    else
+        echo "Skipping similar company recommendation"
+    fi
+
+    echo -e "${GREEN}[3/3] Generate recommendation...${NC}"
+    poetry run python recommend.py --config $config || exit 1
+); then
     echo -e "${GREEN}✅ All tasks finished successfully! ${NC}"
 else
-    echo -e "${RED}❌ Tasks executation failed! ${NC}"
+    echo -e "${RED}❌ Tasks execution failed! ${NC}"
     exit 1
 fi
