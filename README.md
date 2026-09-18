@@ -69,9 +69,15 @@ For a detailed look at the architecture, keep reading below.
   * The current HTML data does not contain the full `job_description`. As a result, job suitability is currently assessed primarily based on the **job title**, which may occasionally lead to inaccurate recommendations.
   * A further suitability assessment based on the full `job_description` may therefore be required. This step can be seamlessly delegated to ChatGPT or other tools for deeper job-to-profile analysis.
 
+**V3.1.0 – Refined data and output Structure**
 
-**GitHub Version - Logging Improvements** *(--In development)*
-* **Improve logging:** Replace print statements used for debugging with Python's built-in logging module to improve scalability, maintainability, and debugging.
+Building on V3.0.0, this release reorganises the data and output directories to improve file organisation, path consistency, and overall clarity of data and result management.
+
+
+**GitHub Version – Future Improvements** *(In Development)*
+* **Improve logging:** Replace direct `print` statements currently used for debugging with a dedicated logging function based on Python's built-in `logging` module to improve scalability, maintainability, and troubleshooting.
+* **Refactor code architecture:** Further modularise and refactor the recommend.py script to improve extensibility, maintainability, and support for future functionality.
+* **Standardise function design:** Improve function structure and coding standards by requiring clear function-level documentation, including descriptions of purpose, parameters, return values, and expected behaviour where appropriate.
 
 ---
   

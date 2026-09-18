@@ -16,7 +16,8 @@ def added_process(added_data_path_list:list,
       for address in added_data_path_list:
             print(address)
             tmp = pd.read_csv(address)
-            for col in ['company','title']:
+            # for col in tmp.columns.tolist():
+            for col in ['company','title','posted_date']:
                   tmp[col] = tmp[col].apply(lambda x:str(x).lower())
             # add drop-duplicates in single platform
             tmp = tmp.drop_duplicates(subset=['company','title'],keep='first').reset_index(drop=True)
@@ -27,18 +28,22 @@ def added_process(added_data_path_list:list,
       added = added.drop_duplicates(subset = ['company','title'],keep='first').reset_index(drop=True)
       print(" - Delete duplicate jobs in cross platforms：", added.shape)
 
-      # start data filtering
+      # start data filtering for keyword name of jobs
       key_words = [x.lower() for x in needed_keywords_in_title.split(',')]
       escaped_words1 = [re.escape(word) for word in key_words]
       pattern1 = '|'.join(escaped_words1)
       added = added[added['title'].str.contains(pattern1, na=False)]
 
-      # delete_words = ['trainee', 'affairs', 'grain', 'part-time', 'part time', 'intern']
-      escaped_words2 = [re.escape(word) for word in delete_words_in_title.split(',')]
+      # delete jobs which including below words that not suitable to apply
+      delete_words_in_title = [x.lower() for x in delete_words_in_title.split(',')]
+      escaped_words2 = [re.escape(word) for word in delete_words_in_title]
       pattern2 = '|'.join(escaped_words2)
       added = added[~added['title'].str.contains(pattern2, na=False)]
 
-      added = added[~added['company'].str.contains('|'.join(delete_words_in_company.split(',')))]
+      delete_words_in_company = [x.lower() for x in delete_words_in_company.split(',')]
+      escaped_words3 = [re.escape(word) for word in delete_words_in_company]
+      pattern3 = '|'.join(escaped_words3)
+      added = added[~added['company'].str.contains(pattern3, na=False)]
 
       added['start_salary'] = (added['salary'].astype(str).str.extract(r'([\d,]+)', expand=False)
                                .str.replace(',', '', regex=False)
@@ -49,9 +54,6 @@ def added_process(added_data_path_list:list,
       if min_base_salary is not None:
           added = added[added['start_salary']>=int(min_base_salary)]      
       print(' - after data filtering with ：', added.shape)
-
-      if 'apply_date' in added.columns.tolist():
-           del added['apply_date']
 
       return added
 
@@ -77,81 +79,76 @@ def get_features(new_df:pd.DataFrame)->pd.DataFrame:
       return new_df
 
 
-def gain_job_alerts(added:pd.DataFrame, job_alert_company:list, job_alert_path:Path,
-                    last_apply_df:pd.DataFrame, need_cols:list)->pd.DataFrame:
-      # Add company-level job alerts:
-      # Users define a list of target companies, and any newly posted job
-      # from those companies will be recommended regardless of previous
-      # applications or application timing.
-      # Only enable this feature for users with clearly defined target companies.
-      # start today's job alert filtering
-      dt = added.copy()
-
-
-
-
-
 def get_last_apply_info(job_alert_path:Path, recommendation_path: Path, 
                         all_today_new_open_jobs: Path, main_table_path: Path, 
                         new_df:pd.DataFrame)->pd.DataFrame:
       
-      print('---Starting Data Integration---')
-      # append result0 into primary_table
-      job_alert_tmp = pd.read_csv(job_alert_path)
-      job_alert_tmp = job_alert_tmp[job_alert_tmp['recommend'].isin(['1',1])]
-      if job_alert_tmp:
-            job_alert_tmp.to_csv(main_table_path, mode='a', 
-                                          header=False, 
-                                          index=False, encoding = 'utf-8-sig')
+      # print('---Starting Data Integration---')
+      # # append result0 into primary_table
+      # job_alert_tmp = pd.read_csv(job_alert_path)
+      # job_alert_tmp = job_alert_tmp[job_alert_tmp['recommend'].isin(['1',1])]
+      # if len(job_alert_tmp)>0:
+      #       job_alert_tmp.to_csv(main_table_path, mode='a', 
+      #                                     header=False, 
+      #                                     index=False, encoding = 'utf-8-sig')
 
-      # append result1 into primary_table
-      recommendation_tmp = pd.read_csv(recommendation_path)
-      recommendation_tmp = recommendation_tmp[recommendation_tmp['recommend'].isin(['1',1])]
-      if recommendation_tmp:
-            recommendation_tmp.to_csv(main_table_path, mode='a', 
-                                      header=False, 
-                                      index=False, encoding = 'utf-8-sig')
+      # # append result1 into primary_table
+      # recommendation_tmp = pd.read_csv(recommendation_path)
+      # recommendation_tmp = recommendation_tmp[recommendation_tmp['recommend'].isin(['1',1])]
+      # if len(recommendation_tmp)>0:
+      #       recommendation_tmp.to_csv(main_table_path, mode='a', 
+      #                                 header=False, 
+      #                                 index=False, encoding = 'utf-8-sig')
 
-      # append result2 into primary_table
-      all_dt_tmp = pd.read_csv(all_today_new_open_jobs)
-      all_dt_tmp = all_dt_tmp[all_dt_tmp['recommend'].isin(['1',1])]
-      if all_dt_tmp:
-            all_dt_tmp.to_csv(main_table_path, mode='a', 
-                                    header=False, 
-                                    index=False, encoding = 'utf-8-sig')
+      # # append result2 into primary_table
+      # all_dt_tmp = pd.read_csv(all_today_new_open_jobs)
+      # all_dt_tmp = all_dt_tmp[all_dt_tmp['recommend'].isin(['1',1])]
+      # if len(all_dt_tmp)>0:
+      #       all_dt_tmp.to_csv(main_table_path, mode='a', 
+      #                               header=False, 
+      #                               index=False, encoding = 'utf-8-sig')
 
      # read main table to do filtering and get main feature of apply_date
       print('------Begin to get last apply info------')
       main_df = pd.read_csv(main_table_path, encoding='utf-8-sig')
       main_df = main_df.drop_duplicates().reset_index(drop=True)
 
-      for col in ['company','title']:
-            main_df[col] = main_df[col].apply(lambda x:str(x).lower())
-
       company_lower_set = set(new_df['company'].unique().tolist())
       last_apply_df = main_df[main_df['company'].isin(company_lower_set)]
+  
+      last_apply_df = last_apply_df[(last_apply_df['apply_date'].notnull())&(last_apply_df['apply_date']!='')]
+
       last_apply_df['apply_date'] = pd.to_datetime(last_apply_df['apply_date'], format="%Y%m%d", errors="coerce")
       last_apply_df = last_apply_df.sort_values(by=['company','apply_date'], ascending=False).drop_duplicates(subset='company',keep='first').reset_index(drop=True)
-      last_apply_df.rename(columns={"apply_date":"last_apply_date","title":"last_apply_title"},inplace=True)
+      last_apply_df = last_apply_df[['company','title','apply_date']].drop_duplicates().reset_index(drop=True)
+      last_apply_df = last_apply_df.rename(columns={"apply_date": "last_apply_date", 
+                                                    "title": "last_apply_title"})
       last_apply_df['last_apply_to_today_days'] = (pd.Timestamp.now() - last_apply_df['last_apply_date']).dt.days
       print('- double check last apply date to be unique for last one: ',last_apply_df.shape[0]==last_apply_df['company'].nunique())
       last_apply_df = last_apply_df[['company','last_apply_date','last_apply_title','last_apply_to_today_days']].drop_duplicates().reset_index(drop=True)
+
       return last_apply_df
 
 
 def main(main_table_path:Path, added_data_path_list: list, 
-         last_apply_path: Path, recommendation_path: Path, min_base_salary:int,                  
+         recommendation_path: Path, min_base_salary:int,                  
          title_filter_keywords:str,delete_words_in_title:str,
          delete_words_in_company:str, job_alert_company:list,
          job_alert_path:Path, all_today_new_open_jobs:Path):
       
-      new_df = added_process(added_data_path_list, last_apply_path, 
-                              min_base_salary, title_filter_keywords, 
-                              delete_words_in_title, delete_words_in_company, )
+      new_df = added_process(added_data_path_list, 
+                              min_base_salary, 
+                              title_filter_keywords, 
+                              delete_words_in_title, 
+                              delete_words_in_company, )
       new_df = get_features(new_df)
       
       last_apply_df = get_last_apply_info(job_alert_path, recommendation_path, 
                         all_today_new_open_jobs, main_table_path, new_df)
+
+      for col in ['last_apply_date','last_apply_title','last_apply_to_']:
+           if col in new_df.columns.tolist():
+                del new_df[col]
 
       new_df = new_df.merge(last_apply_df, on='company', how='left')
       new_df['recommend'] = 1
@@ -164,7 +161,7 @@ def main(main_table_path:Path, added_data_path_list: list,
       print('------Starting gain job alerts company list------')
       job_alert_company = [x.lower() for x in job_alert_company]
       job_alert_df = new_df[new_df['company'].str.contains('|'.join(job_alert_company))]
-      if job_alert_df:
+      if len(job_alert_df)>0:
             job_alert_df = job_alert_df.sort_values(by=['priority','unit','company'],ascending=True).reset_index(drop=True)
             job_alert_df[need_cols].to_csv(job_alert_path, index=False, encoding='utf-8-sig')
             print(f' - Firstly, there are total {len(job_alert_df)} jobs for job alert company list!')
@@ -173,7 +170,7 @@ def main(main_table_path:Path, added_data_path_list: list,
       # never applied before and post in recent 5 days
       group1 = new_df[(new_df['apply_date'].isnull())&(new_df['new_period'].isin(['day','days']))&(new_df['new_unit'].isin([str(x) for x in range(1,6)]))]
       # post in recent 5 days and last apply date was 30 days ago
-      group2 = new_df[(new_df['new_unit'].isin([str(x) for x in range(1,6)]))&(new_df['new_period'].isin(['days','day']))&(new_df['last_apply_to_today']>30)]
+      group2 = new_df[(new_df['new_unit'].isin([str(x) for x in range(1,6)]))&(new_df['new_period'].isin(['days','day']))&(new_df['last_apply_to_today_days']>30)]
 
       recommendation = pd.concat([group1, group2], axis=0).drop_duplicates().reset_index(drop=True)
       recommendation = recommendation[~recommendation['job_id'].isin(job_alert_df['job_id'].unique().tolist())]
@@ -209,33 +206,31 @@ if __name__ == "__main__":
     cfg = load_config(args.config)
     config_dir = Path(args.config).resolve().parent
 
+    title_filter_keywords = cfg["title_filter_keywords"]
+    delete_words_in_title = cfg["delete_words_in_title"]
+    delete_words_in_company = cfg["delete_words_in_company"]
+
     def resolve_path(base: Path, p) -> Path:
         p = Path(p)
         return p if p.is_absolute() else (base / p).resolve()
 
-    main_table_path = resolve_path(config_dir, cfg['main_table_path'])
+    main_table_path = resolve_path(config_dir, Path(cfg['main_table_path']))
     added_data_path_list = [
     resolve_path(config_dir, Path(cfg['data_dir']) / cfg['linkedin_filename_added']),
     resolve_path(config_dir, Path(cfg['data_dir']) / cfg['irishjobs_filename_added']),
     ]   
 
-    last_apply_path         = resolve_path(config_dir, cfg['save_file'])
-    recommendation_path     = resolve_path(config_dir, cfg['recommendation_path'])
-    job_alert_path          = resolve_path(config_dir, cfg['job_alert_path'])
-    all_today_new_open_jobs = resolve_path(config_dir, cfg['all_today_new_open_jobs'])
-    
-    title_filter_keywords = cfg["title_filter_keywords"]
-    delete_words_in_title = cfg["delete_words_in_title"]
-    delete_words_in_company = cfg["delete_words_in_company"]
+    recommendation_path     = resolve_path(config_dir, Path(cfg['recommendation_path']))
+    job_alert_path          = resolve_path(config_dir, Path(cfg['job_alert_path']))
+    all_today_new_open_jobs = resolve_path(config_dir, Path(cfg['all_today_new_open_jobs']))
 
-    similar_company_save_path = resolve_path(config_dir, cfg['similar_company_save_path'])
+    similar_company_save_path = resolve_path(config_dir, Path(cfg['similar_company_save_path']))
     similar_company = pd.read_csv(similar_company_save_path)
     job_alert_company = similar_company['company'].unique().tolist() # str->list
     
     main(
         main_table_path=main_table_path,
         added_data_path_list=added_data_path_list,
-        last_apply_path=last_apply_path,
         recommendation_path=recommendation_path,
         title_filter_keywords=title_filter_keywords,
         delete_words_in_title=delete_words_in_title,

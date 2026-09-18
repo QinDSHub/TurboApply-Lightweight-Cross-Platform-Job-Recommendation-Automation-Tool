@@ -1,6 +1,8 @@
 # ========== Self-defined for the project ==========
-mine/
+# The files and scripts below are intended solely for privacy-sensitive data,
+# and for testing additional functionality integrated into this system.
 test/
+mine/
 my_config.yaml
 my_one_click_run.sh
 
