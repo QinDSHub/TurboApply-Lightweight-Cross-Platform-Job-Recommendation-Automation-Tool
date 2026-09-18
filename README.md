@@ -71,7 +71,7 @@ For a detailed look at the architecture, keep reading below.
 
 ## **V3.1.0 – Refined data and output Structure**
 
-Building on V3.0.0, this release reorganises the data and output directories to improve file organisation, path consistency, and overall clarity of data and result management.
+Building on V3.0.0, this release reorganises the data and output directories to improve codebase organisation, path consistency, and overall clarity of data and result management.
 
 
 ## **GitHub Version – Future Improvements** *(In Development)*
