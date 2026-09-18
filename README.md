@@ -78,6 +78,8 @@ Building on V3.0.0, this release reorganises the data and output directories to 
 * **Improve logging:** Replace direct `print` statements currently used for debugging with a dedicated logging function based on Python's built-in `logging` module to improve scalability, maintainability, and troubleshooting.
 * **Refactor code architecture:** Further modularise and refactor the recommend.py script to improve extensibility, maintainability, and support for future functionality.
 * **Standardise function design:** Improve function structure and coding standards by requiring clear function-level documentation, including descriptions of purpose, parameters, return values, and expected behaviour where appropriate.
+* **Add a company name normalization module:** Handle inconsistencies in company names across different job platforms, e.g., Platform A lists a company as `ABC`, while Platform B lists it as `ABC Ireland`.
+
 
 ---
   
