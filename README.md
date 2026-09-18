@@ -74,7 +74,7 @@ For a detailed look at the architecture, keep reading below.
 Building on V3.0.0, this release reorganises the data and output directories to improve file organisation, path consistency, and overall clarity of data and result management.
 
 
-**GitHub Version – Future Improvements** *(In Development)*
+## **GitHub Version – Future Improvements** *(In Development)*
 * **Improve logging:** Replace direct `print` statements currently used for debugging with a dedicated logging function based on Python's built-in `logging` module to improve scalability, maintainability, and troubleshooting.
 * **Refactor code architecture:** Further modularise and refactor the recommend.py script to improve extensibility, maintainability, and support for future functionality.
 * **Standardise function design:** Improve function structure and coding standards by requiring clear function-level documentation, including descriptions of purpose, parameters, return values, and expected behaviour where appropriate.
