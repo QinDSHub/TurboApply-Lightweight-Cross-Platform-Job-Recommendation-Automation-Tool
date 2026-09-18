@@ -1,5 +1,5 @@
 # TurboApply
-## A Lightweight, Cross-platform Job Recommendation Automation Tool for More Efficient Job Search
+## A Lightweight, Cross-platform Job Recommendation Automation Tool for Efficient Job Search
 
 TurboApply is a lightweight, rule-based, cross-platform job recommendation automation tool designed to help job seekers decide faster which opportunities are actually worth applying for.
 
