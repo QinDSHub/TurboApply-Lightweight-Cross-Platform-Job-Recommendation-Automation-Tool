@@ -69,7 +69,7 @@ For a detailed look at the architecture, keep reading below.
   * The current HTML data does not contain the full `job_description`. As a result, job suitability is currently assessed primarily based on the **job title**, which may occasionally lead to inaccurate recommendations.
   * A further suitability assessment based on the full `job_description` may therefore be required. This step can be seamlessly delegated to ChatGPT or other tools for deeper job-to-profile analysis.
 
-**V3.1.0 – Refined data and output Structure**
+## **V3.1.0 – Refined data and output Structure**
 
 Building on V3.0.0, this release reorganises the data and output directories to improve file organisation, path consistency, and overall clarity of data and result management.
 
