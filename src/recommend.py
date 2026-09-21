@@ -129,12 +129,14 @@ def get_last_apply_info(job_alert_path:Path, recommendation_path: Path,
 
       return last_apply_df
 
+
 def build_order_group(df:pd.DataFrame)->pd.DataFrame:
-     group_df = df.sort_values(by=['company','priority','unit'],ascending=True).drop_duplicates(subset=['company'],keep='first').reset_index(drop=True)
+     group_df = df.sort_values(by=['priority','unit','company'],ascending=[True,True,True]).drop_duplicates(subset=['company'],keep='first').reset_index(drop=True)
      group_df['group'] = range(len(group_df))
-     df = df.merge(group_df[['company','group']].drop_duplicates(),on='company',how='left')
-     df = df.sort_values(by=['group','priority','unit'],ascending=True).reset_index(drop=True)
+     df = df.merge(group_df[['company','group']],on='company',how='left')
+     df = df.sort_values(by=['group','priority','unit'],ascending=[True,True,True]).reset_index(drop=True)
      return df
+
 
 def main(main_table_path:Path, added_data_path_list: list, 
          recommendation_path: Path, min_base_salary:int,                  
@@ -162,21 +164,22 @@ def main(main_table_path:Path, added_data_path_list: list,
 
       need_cols = ['job_id', 'title', 'company', 'location', 'salary', 'posted_date', 
                    'job_url', 'scrape_date', 'last_apply_date','last_apply_title',
-                   'last_apply_to_today_days', 'recommend', 'apply_date']
+                   'last_apply_to_today_days', 'recommend', 'apply_date', 'group']
 
       print('------Starting gain job alerts company list------')
       job_alert_company = [x.lower() for x in job_alert_company]
       job_alert_df = new_df[new_df['company'].str.contains('|'.join(job_alert_company))]
       if len(job_alert_df)>0:
             job_alert_df = build_order_group(job_alert_df)
+            job_alert_df.to_csv('double_check.csv',index=False,encoding='utf-8-sig')
             job_alert_df[need_cols].to_csv(job_alert_path, index=False, encoding='utf-8-sig')
             print(f' - Firstly, there are total {len(job_alert_df)} jobs for job alert company list!')
 
       print('------Starting customed recemmendation------')
       # never applied before and post in recent 5 days
-      group1 = new_df[(new_df['apply_date'].isnull())&(new_df['new_period'].isin(['day','days']))&(new_df['new_unit'].isin([str(x) for x in range(1,6)]))]
+      group1 = new_df[(new_df['last_apply_date'].isnull())&(new_df['new_period'].isin(['day','days']))&(new_df['new_unit'].isin([str(x) for x in range(1,6)]))]
       # post in recent 5 days and last apply date was 30 days ago
-      group2 = new_df[(new_df['new_unit'].isin([str(x) for x in range(1,6)]))&(new_df['new_period'].isin(['days','day']))&(new_df['last_apply_to_today_days']>30)]
+      group2 = new_df[(new_df['new_unit'].isin([str(x) for x in range(1,6)]))&(new_df['new_period'].isin(['days','day']))&(new_df['last_apply_to_today_days']>15)]
 
       recommendation = pd.concat([group1, group2], axis=0).drop_duplicates().reset_index(drop=True)
       recommendation = recommendation[~recommendation['job_id'].isin(job_alert_df['job_id'].unique().tolist())]
@@ -205,7 +208,6 @@ if __name__ == "__main__":
     arg_parser = argparse.ArgumentParser(description="Generate today's job recommendation")
     arg_parser.add_argument("--config", type=str,
                             default=str(PROJECT_ROOT / "config.yaml"))
-    arg_parser.add_argument("--min_base_salary", type=int, default=0)
     args = arg_parser.parse_args()
 
     cfg = load_config(args.config)
@@ -232,7 +234,8 @@ if __name__ == "__main__":
     similar_company_save_path = resolve_path(config_dir, Path(cfg['similar_company_save_path']))
     similar_company = pd.read_csv(similar_company_save_path)
     job_alert_company = similar_company['company'].unique().tolist() # str->list
-    
+    min_base_salary = cfg['min_base_salary'] if cfg['min_base_salary'] is not None else 0
+
     main(
         main_table_path=main_table_path,
         added_data_path_list=added_data_path_list,
@@ -240,7 +243,7 @@ if __name__ == "__main__":
         title_filter_keywords=title_filter_keywords,
         delete_words_in_title=delete_words_in_title,
         delete_words_in_company=delete_words_in_company,
-        min_base_salary=args.min_base_salary,
+        min_base_salary=min_base_salary,
         job_alert_company=job_alert_company,
         job_alert_path=job_alert_path,
         all_today_new_open_jobs=all_today_new_open_jobs,
