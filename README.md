@@ -1,5 +1,5 @@
 # TurboApply
-## A Lightweight, Cross-platform Job Recommendation Automation Tool for More Efficient Job Search
+## A Lightweight, Cross-platform Job Recommendation Automation Tool for Efficient Job Search
 
 TurboApply is a lightweight, rule-based, cross-platform job recommendation automation tool designed to help job seekers decide faster which opportunities are actually worth applying for.
 
@@ -69,15 +69,26 @@ For a detailed look at the architecture, keep reading below.
   * The current HTML data does not contain the full `job_description`. As a result, job suitability is currently assessed primarily based on the **job title**, which may occasionally lead to inaccurate recommendations.
   * A further suitability assessment based on the full `job_description` may therefore be required. This step can be seamlessly delegated to ChatGPT or other tools for deeper job-to-profile analysis.
 
-**V3.1.0 – Refined data and output Structure**
+## **V3.1.0 – Refined data and output Structure**
 
-Building on V3.0.0, this release reorganises the data and output directories to improve file organisation, path consistency, and overall clarity of data and result management.
+Building on V3.0.0, this release reorganises the data and output directories to improve codebase organisation, path consistency, and overall clarity of data and result management.
+
+## **V3.1.1 – Group Job Recommendations by Company**
+* **Improve the ordering of recommended job postings:**
+  * Previously, recommended jobs were displayed strictly based on their posting date, with the newest postings shown first.
+  * In practice, applying to the first newly posted role could lead to overlooking another potentially better-suited role from the same company posted shortly afterward.
+* **Add company-level grouping to recommendation results:**
+  * When generating the recommendation table, newly posted roles are first grouped by company based on their posting sequence.
+  * Companies with two or more recently posted roles are presented as a single group, allowing multiple opportunities from the same company to be reviewed together.
+  * This makes it easier to compare roles within the same company and select the most suitable position to apply for, rather than applying sequentially based solely on posting time.
 
 
-**GitHub Version – Future Improvements** *(In Development)*
+## **GitHub Version – In development**
 * **Improve logging:** Replace direct `print` statements currently used for debugging with a dedicated logging function based on Python's built-in `logging` module to improve scalability, maintainability, and troubleshooting.
 * **Refactor code architecture:** Further modularise and refactor the recommend.py script to improve extensibility, maintainability, and support for future functionality.
 * **Standardise function design:** Improve function structure and coding standards by requiring clear function-level documentation, including descriptions of purpose, parameters, return values, and expected behaviour where appropriate.
+* **Add a company name normalization module:** Handle inconsistencies in company names across different job platforms, e.g., Platform A lists a company as `ABC`, while Platform B lists it as `ABC Ireland`.
+
 
 ---
   

@@ -83,30 +83,30 @@ def get_last_apply_info(job_alert_path:Path, recommendation_path: Path,
                         all_today_new_open_jobs: Path, main_table_path: Path, 
                         new_df:pd.DataFrame)->pd.DataFrame:
       
-      # print('---Starting Data Integration---')
-      # # append result0 into primary_table
-      # job_alert_tmp = pd.read_csv(job_alert_path)
-      # job_alert_tmp = job_alert_tmp[job_alert_tmp['recommend'].isin(['1',1])]
-      # if len(job_alert_tmp)>0:
-      #       job_alert_tmp.to_csv(main_table_path, mode='a', 
-      #                                     header=False, 
-      #                                     index=False, encoding = 'utf-8-sig')
+      print('---Starting Data Integration---')
+      # append result0 into primary_table
+      job_alert_tmp = pd.read_csv(job_alert_path)
+      job_alert_tmp = job_alert_tmp[job_alert_tmp['recommend'].isin(['1',1])]
+      if len(job_alert_tmp)>0:
+            job_alert_tmp.to_csv(main_table_path, mode='a', 
+                                          header=False, 
+                                          index=False, encoding = 'utf-8-sig')
 
-      # # append result1 into primary_table
-      # recommendation_tmp = pd.read_csv(recommendation_path)
-      # recommendation_tmp = recommendation_tmp[recommendation_tmp['recommend'].isin(['1',1])]
-      # if len(recommendation_tmp)>0:
-      #       recommendation_tmp.to_csv(main_table_path, mode='a', 
-      #                                 header=False, 
-      #                                 index=False, encoding = 'utf-8-sig')
+      # append result1 into primary_table
+      recommendation_tmp = pd.read_csv(recommendation_path)
+      recommendation_tmp = recommendation_tmp[recommendation_tmp['recommend'].isin(['1',1])]
+      if len(recommendation_tmp)>0:
+            recommendation_tmp.to_csv(main_table_path, mode='a', 
+                                      header=False, 
+                                      index=False, encoding = 'utf-8-sig')
 
-      # # append result2 into primary_table
-      # all_dt_tmp = pd.read_csv(all_today_new_open_jobs)
-      # all_dt_tmp = all_dt_tmp[all_dt_tmp['recommend'].isin(['1',1])]
-      # if len(all_dt_tmp)>0:
-      #       all_dt_tmp.to_csv(main_table_path, mode='a', 
-      #                               header=False, 
-      #                               index=False, encoding = 'utf-8-sig')
+      # append result2 into primary_table
+      all_dt_tmp = pd.read_csv(all_today_new_open_jobs)
+      all_dt_tmp = all_dt_tmp[all_dt_tmp['recommend'].isin(['1',1])]
+      if len(all_dt_tmp)>0:
+            all_dt_tmp.to_csv(main_table_path, mode='a', 
+                                    header=False, 
+                                    index=False, encoding = 'utf-8-sig')
 
      # read main table to do filtering and get main feature of apply_date
       print('------Begin to get last apply info------')
@@ -129,6 +129,12 @@ def get_last_apply_info(job_alert_path:Path, recommendation_path: Path,
 
       return last_apply_df
 
+def build_order_group(df:pd.DataFrame)->pd.DataFrame:
+     group_df = df.sort_values(by=['company','priority','unit'],ascending=True).drop_duplicates(subset=['company'],keep='first').reset_index(drop=True)
+     group_df['group'] = range(len(group_df))
+     df = df.merge(group_df[['company','group']].drop_duplicates(),on='company',how='left')
+     df = df.sort_values(by=['group','priority','unit'],ascending=True).reset_index(drop=True)
+     return df
 
 def main(main_table_path:Path, added_data_path_list: list, 
          recommendation_path: Path, min_base_salary:int,                  
@@ -162,7 +168,7 @@ def main(main_table_path:Path, added_data_path_list: list,
       job_alert_company = [x.lower() for x in job_alert_company]
       job_alert_df = new_df[new_df['company'].str.contains('|'.join(job_alert_company))]
       if len(job_alert_df)>0:
-            job_alert_df = job_alert_df.sort_values(by=['priority','unit','company'],ascending=True).reset_index(drop=True)
+            job_alert_df = build_order_group(job_alert_df)
             job_alert_df[need_cols].to_csv(job_alert_path, index=False, encoding='utf-8-sig')
             print(f' - Firstly, there are total {len(job_alert_df)} jobs for job alert company list!')
 
@@ -174,8 +180,7 @@ def main(main_table_path:Path, added_data_path_list: list,
 
       recommendation = pd.concat([group1, group2], axis=0).drop_duplicates().reset_index(drop=True)
       recommendation = recommendation[~recommendation['job_id'].isin(job_alert_df['job_id'].unique().tolist())]
-
-      recommendation = recommendation.sort_values(by=['priority','unit','company'],ascending=True).reset_index(drop=True)
+      recommendation = build_order_group(recommendation)
       recommendation[need_cols].to_csv(recommendation_path, index=False, encoding = 'utf-8-sig')
       print(f" - Secondly, there are total {len(recommendation)} jobs to recommend by your customization！")
 
@@ -187,7 +192,7 @@ def main(main_table_path:Path, added_data_path_list: list,
       all_today_df = all_today_df[~all_today_df['job_id'].isin(exclude_ids)]
 
       # list according to the posted date
-      all_today_df = all_today_df.sort_values(by=['priority','unit', 'company'],ascending=True).reset_index(drop=True)
+      all_today_df = build_order_group(all_today_df)
       all_today_df['recommend'] = ''
       all_today_df['apply_date'] = ''
       all_today_df[need_cols].to_csv(all_today_new_open_jobs, index=False, encoding='utf-8-sig')
