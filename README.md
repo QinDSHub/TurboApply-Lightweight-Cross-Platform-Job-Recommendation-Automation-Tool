@@ -41,7 +41,7 @@ For a detailed look at the architecture, keep reading below.
 * **Optimize `recommendation.py`:** Refactor and streamline the recommendation logic to improve code maintainability and readability.
 * **Apply all jobs posted today during peak periods:** Add an optional mode that bypasses the custom recommendation mechanism during peak application periods. Instead, all jobs posted today are prioritized and processed based on their posting time.
 
-## **V3.0.0 – AI Agents for Company-Level Recommendations & Optimization**
+### **V3.0.0 – AI Agents for Company-Level Recommendations & Optimization**
 * **Add two AI agents to expand company-level recommendation coverage:**
   * The first agent identifies the **sector, subsector, and business tags** associated with each company that has invited me to interview.
   * The second agent uses these attributes as constraints to identify the **top-k similar companies** for each interview company.
@@ -69,11 +69,11 @@ For a detailed look at the architecture, keep reading below.
   * The current HTML data does not contain the full `job_description`. As a result, job suitability is currently assessed primarily based on the **job title**, which may occasionally lead to inaccurate recommendations.
   * A further suitability assessment based on the full `job_description` may therefore be required. This step can be seamlessly delegated to ChatGPT or other tools for deeper job-to-profile analysis.
 
-## **V3.1.0 – Refined data and output Structure**
+### **V3.1.0 – Refined data and output Structure**
 
 Building on V3.0.0, this release reorganises the data and output directories to improve codebase organisation, path consistency, and overall clarity of data and result management.
 
-## **V3.1.1 – Group Job Recommendations by Company**
+### **V3.1.1 – Group Job Recommendations by Company**
 * **Improve the ordering of recommended job postings:**
   * Previously, recommended jobs were displayed strictly based on their posting date, with the newest postings shown first.
   * In practice, applying to the first newly posted role could lead to overlooking another potentially better-suited role from the same company posted shortly afterward.
