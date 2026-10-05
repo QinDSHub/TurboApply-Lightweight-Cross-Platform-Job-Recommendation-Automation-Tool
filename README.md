@@ -82,10 +82,8 @@ Building on V3.0.0, this release reorganises the data and output directories to 
 * **Run the complete pipeline:**
   `poetry run bash one_click_run.sh`
 * **Your results will be generated within about one minute**, with filenames starting with `1`, `2`, and `3`. Start with the highest-priority list, `1_xxx.csv`.
-
-For both `1_xxx.csv` and `2_xxx.csv`, clear the `recommend` and `apply_date` fields for jobs you decide not to apply for.
-
-For `1_xxx.csv`, fill in the `recommend` and `apply_date` fields for jobs you do apply for. This is important because the list is intentionally prioritized—you may not have enough time to apply to all recommended jobs, so these fields help track which opportunities you have actually acted on.
+* For both `1_xxx.csv` and `2_xxx.csv`, clear the `recommend` and `apply_date` fields for jobs you decide not to apply for.
+* For `1_xxx.csv`, fill in the `recommend` and `apply_date` fields for jobs you do apply for. This is important because the list is intentionally prioritized—you may not have enough time to apply to all recommended jobs, so these fields help track which opportunities you have actually acted on.
 
 
 ---
