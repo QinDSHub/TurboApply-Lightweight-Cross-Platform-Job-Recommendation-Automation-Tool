@@ -22,7 +22,6 @@ interview_company: "acompany,bcompany"
 similar_company_save_path: "output/similar_company_list.csv"
 region: "Ireland"
 top_k: int("recommend number for similar business companies based on your interview_company")
-min_base_salary: (default is 0, you could revise to your requirement)
 
 
 

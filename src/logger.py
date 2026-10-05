@@ -3,7 +3,7 @@ import sys
 from pathlib import Path
 
 def setup_logging(level=logging.INFO, log_file="logs/run.log"):
-      Path(log_file).parent.mkdir(exist_ok=True)
+      Path(log_file).parent.parent.mkdir(exist_ok=True)
       fmt = logging.Formatter(
             fmt="%(asctime)s | %(levelname)-5s | %(message)s",
             datefmt = "%H:%M:%S",
