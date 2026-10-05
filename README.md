@@ -7,16 +7,6 @@ Instead of trying to help candidates find more jobs, TurboApply focuses on reduc
 
 ### 🚀Search less. Decide faster. Apply better. Let automation handle the routine.
 
-### ⚡In a nutshell, the steps are:
-* **Download and unzip the repository. Make sure right version Python and Poetry are installed.**
-* **Install the dependencies: poetry install --no-root**
-* **Update your historical application data in ./applied_data/last_apply_data.csv. This step is optional and can be skipped.**
-* **Download the relevant job-listing HTML pages from LinkedIn and IrishJobs, and save them as page_xx.html in the corresponding platform directories.**
-* **Update the relevant variables in config.yaml.**
-* **Update the relevant variables in one_click_run.sh.**
-* **Run the complete pipeline: poetry run bash one_click_run.sh.**
-* **Today's recommendations and your job_alert_company_list will be generated in less than a minute, with direct application links provided for each recommendation.**
-
 ### 📌 Version Iteration Records
 For a detailed look at the architecture, keep reading below.
 
@@ -81,6 +71,17 @@ Building on V3.0.0, this release reorganises the data and output directories to 
 
   To address this, V3.2.0 introduced a rolling two-week data retention window to keep the review dataset bounded. Expired records are automatically removed before ingesting the latest listings, regardless of whether an application was submitted. This prevents previously reviewed jobs from repeatedly resurfacing when companies refresh or republish the same listings, making the daily workflow more efficient and reducing unnecessary manual review.
 * **Logging for traceability:** Replaced direct `print` statements used for debugging with a dedicated logging function built on Python's standard `logging` module, improving traceability, maintainability, scalability, and troubleshooting.
+
+### ⚡ In a nutshell, the steps are:
+* **Download and unzip the repository.** Make sure the required versions of Python and Poetry are installed.
+* **Navigate to the repository and install the dependencies:**
+  `poetry install --no-root`
+* **Download the relevant job-listing HTML pages** from LinkedIn and IrishJobs, and save them as `page_1.html` in the corresponding platform directories.
+* **Update the relevant variables in `config.yaml`.** Keeping the default settings is recommended unless you have specific requirements.
+* **Update the relevant variables in `one_click_run.sh`**, mainly the start/end page ranges for each platform and, of course, your beloved company list.
+* **Run the complete pipeline:**
+  `poetry run bash one_click_run.sh`
+* **Your results will be generated within about one minute**, with filenames starting with `1`, `2`, and `3`. You can start with the highest-priority list, `1_xxx.csv`.
 
 
 ---
