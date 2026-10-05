@@ -9,6 +9,9 @@ from utils import clear_folder_os
 from utils import load_config
 import argparse, dataclasses
 from utils import JobInfo
+import logging
+
+logger = logging.getLogger(__name__)
 
 class IrishJobsLocalParser:    
     def __init__(self, html_data_dir: str, data_dir: str):
@@ -40,7 +43,7 @@ class IrishJobsLocalParser:
         cards = soup.select('[data-at="job-item"]')
 
         if not cards:
-            print("Not find job card（[data-at='job-item']), pls confirm whether HTML from IrishJobs.ie")
+            logger.warning("Not find job card, pls confirm whether HTML from IrishJobs.ie")
             return []
 
         jobs = []
@@ -89,7 +92,7 @@ class IrishJobsLocalParser:
                 scrape_date = scrape_date
             )
         except Exception as e:
-            print(f"Parsing failed: {e}")
+            logger.exception("Parsing failed!")
             return None
     
     def parse_multiple_pages(self, file_pattern: str, page_range: range) -> List[JobInfo]:
@@ -110,43 +113,38 @@ class IrishJobsLocalParser:
             file_path = self.html_data_dir / filename
             
             if file_path.exists():
-                print(f"Start parsing {page} page...")
+                logger.info("Parsing %d page...", page)
                 jobs = self.parse_html_file(str(file_path))
                 all_jobs.extend(jobs)
-                print(f"Find {len(jobs)} jobs")
             else:
-                print(f"File not exists: {file_path}")
+                logger.warning("File %s not exists!", file_path)
         
         return all_jobs
 
 
-    def print_stats(self, jobs: List[JobInfo]) -> None:
-        if not jobs:
-            print("No data")
-            return
+    # def print_stats(self, jobs: List[JobInfo]) -> None:
+    #     if not jobs:
+    #         logger.warning("NO DATA!")
+    #         return
         
-        print(f"\nTotal jobs number: {len(jobs)}")
+    #     company_counts = {}
+    #     for job in jobs:
+    #         company_counts[job.company] = company_counts.get(job.company, 0) + 1
         
-        # 按公司统计
-        company_counts = {}
-        for job in jobs:
-            company_counts[job.company] = company_counts.get(job.company, 0) + 1
+    #     for company, count in sorted(company_counts.items(), key=lambda x: x[1], reverse=True)[:10]:
+    #         print(f"  {company}: {count}")
         
-        print("\nTOP 10 companies with most opening jobs:")
-        for company, count in sorted(company_counts.items(), key=lambda x: x[1], reverse=True)[:10]:
-            print(f"  {company}: {count}")
+    #     location_counts = {}
+    #     for job in jobs:
+    #         loc = job.location or "undefined"
+    #         location_counts[loc] = location_counts.get(loc, 0) + 1
         
-        location_counts = {}
-        for job in jobs:
-            loc = job.location or "undefined"
-            location_counts[loc] = location_counts.get(loc, 0) + 1
+    #     print("\nTOP 10 location with most opening jobs:")
+    #     for loc, count in sorted(location_counts.items(), key=lambda x: x[1], reverse=True)[:10]:
+    #         print(f"  {loc}: {count}")
         
-        print("\nTOP 10 location with most opening jobs:")
-        for loc, count in sorted(location_counts.items(), key=lambda x: x[1], reverse=True)[:10]:
-            print(f"  {loc}: {count}")
-        
-        salary_known = sum(1 for job in jobs if job.salary and job.salary != "Not Disclosed")
-        print(f"\nJobs with salary: {salary_known}/{len(jobs)}")
+    #     salary_known = sum(1 for job in jobs if job.salary and job.salary != "Not Disclosed")
+    #     print(f"\nJobs with salary: {salary_known}/{len(jobs)}")
 
 
 def main(start_page: int, end_page: int, html_data_dir: Path, data_dir: Path,
@@ -159,10 +157,8 @@ def main(start_page: int, end_page: int, html_data_dir: Path, data_dir: Path,
     )
 
     if not jobs:
-        print("Could not extract any data!")
+        logger.warning("NO DATA!")
         return
-
-    # parser.print_stats(jobs)
 
     columns = [f.name for f in dataclasses.fields(JobInfo)]
     save_path = data_dir / (filename if is_total else filename_added)
@@ -170,7 +166,7 @@ def main(start_page: int, end_page: int, html_data_dir: Path, data_dir: Path,
 
     df = pd.DataFrame([asdict(j) for j in jobs], columns=columns)
     df.to_csv(save_path, index=False, encoding="utf-8-sig")
-    print(f"[INFO] Saved to: {save_path}")
+    logger.info("Jobs saved at %s locally!", save_path)
 
 
 if __name__ == "__main__":

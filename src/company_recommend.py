@@ -8,9 +8,12 @@ from typing import List, Type
 from langchain_core.language_models import BaseChatModel
 import argparse
 import pandas as pd
+import logging
 dotenv.load_dotenv()
 api_key = os.getenv("OPENAI_API_KEY")
 base_url = os.getenv("OPENAI_BASE_URL")
+
+logger = logging.getLogger(__name__)
 
 class IndustryItem(BaseModel):
     company: str = Field(description="company name")
@@ -208,7 +211,7 @@ def company_recommend_agent(seed:BaseModel,
       )
 
       if not isinstance(output_2, response_model):
-            raise ValueError(f"Unexpected output type: {type(output_2)}")
+            logger.warning("Unexpected output type: %s", type(output_2))
 
       return output_2
 
@@ -254,7 +257,7 @@ if __name__ == "__main__":
                         reset_index(drop=True))
         df[['company','reason']].to_csv(similar_company_save_path, index=False, encoding='utf-8-sig')
     else:
-        print("No output, pls double check your scripts!")
+        logger.warning("No DATA, pls double check your scripts!")
 
 
 

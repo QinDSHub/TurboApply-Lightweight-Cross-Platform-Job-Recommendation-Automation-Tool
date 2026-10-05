@@ -3,18 +3,21 @@ from pathlib import Path
 import re, argparse
 import warnings
 from utils import clear_file_os, load_config
+from logger import setup_logging
+import logging
 warnings.filterwarnings('ignore', category=FutureWarning)
 warnings.filterwarnings('ignore', category=UserWarning)
 
+setup_logging()
+logger = logging.getLogger(__name__)
+
 def added_process(added_data_path_list:list, 
-                  min_base_salary: int, 
                   needed_keywords_in_title:str,
                   delete_words_in_title:str,
                   delete_words_in_company: str,):
-      print('------Integrate increasal data, data preprocessing and features extraction------')
+      logger.info("---Integrate increasal data and data processing---")
       added = pd.DataFrame()
       for address in added_data_path_list:
-            print(address)
             tmp = pd.read_csv(address)
             # for col in tmp.columns.tolist():
             for col in ['company','title','posted_date']:
@@ -22,11 +25,9 @@ def added_process(added_data_path_list:list,
             # add drop-duplicates in single platform
             tmp = tmp.drop_duplicates(subset=['company','title'],keep='first').reset_index(drop=True)
             added = pd.concat([added,tmp], axis=0)
-      print(' - Merge increasal data from different platforms with ：', added.shape)
 
       # drop-duplicates in cross platform
       added = added.drop_duplicates(subset = ['company','title'],keep='first').reset_index(drop=True)
-      print(" - Delete duplicate jobs in cross platforms：", added.shape)
 
       # start data filtering for keyword name of jobs
       key_words = [x.lower() for x in needed_keywords_in_title.split(',')]
@@ -44,21 +45,17 @@ def added_process(added_data_path_list:list,
       escaped_words3 = [re.escape(word) for word in delete_words_in_company]
       pattern3 = '|'.join(escaped_words3)
       added = added[~added['company'].str.contains(pattern3, na=False)]
-
-      added['start_salary'] = (added['salary'].astype(str).str.extract(r'([\d,]+)', expand=False)
-                               .str.replace(',', '', regex=False)
-                               .fillna('9999999')
-                               .astype(int)
-                               )
-      
-      if min_base_salary is not None:
-          added = added[added['start_salary']>=int(min_base_salary)]      
-      print(' - after data filtering with ：', added.shape)
+          
+      logger.info("✅Final Data Shape is: %s", added.shape)
 
       return added
 
 
 def get_features(new_df:pd.DataFrame)->pd.DataFrame:
+      logger.info("---Start basic feature engineering---")
+      # update on 2026/10/4, some posted date is empty, then fill with default value
+      new_df.loc[(new_df['posted_date'].isnull())|(new_df['posted_date']=='nan'), 'posted_date'] = 'posted 1 day ago'
+
       new_df['posted_date'] = new_df['posted_date'].apply(lambda x:str(x).replace('posted','').strip())
 
       new_df['unit'] = new_df['posted_date'].apply(lambda x:x.split()[0])
@@ -78,38 +75,58 @@ def get_features(new_df:pd.DataFrame)->pd.DataFrame:
 
       return new_df
 
-
-def get_last_apply_info(job_alert_path:Path, recommendation_path: Path, 
-                        all_today_new_open_jobs: Path, main_table_path: Path, 
-                        new_df:pd.DataFrame)->pd.DataFrame:
+def add_yesterday_to_main_table(job_alert_path:Path, 
+                                recommendation_path: Path, 
+                                all_today_new_open_jobs: Path, 
+                                main_table_path: Path,
+                                recent_week_review_path: Path)->pd.DataFrame:
+      logger.info("---Integrate yesterday's application data into main table---")
       
-      print('---Starting Data Integration---')
-      # append result0 into primary_table
+      # append result-0 into primary_table
       job_alert_tmp = pd.read_csv(job_alert_path)
-      job_alert_tmp = job_alert_tmp[job_alert_tmp['recommend'].isin(['1',1])]
-      if len(job_alert_tmp)>0:
-            job_alert_tmp.to_csv(main_table_path, mode='a', 
+      job_alert_tmp_filter = job_alert_tmp[job_alert_tmp['recommend'].isin(['1',1,1.0,'1.0'])]
+      if len(job_alert_tmp_filter)>0:
+            job_alert_tmp_filter.to_csv(main_table_path, mode='a', 
                                           header=False, 
                                           index=False, encoding = 'utf-8-sig')
 
-      # append result1 into primary_table
+      # append result-1 into primary_table
       recommendation_tmp = pd.read_csv(recommendation_path)
-      recommendation_tmp = recommendation_tmp[recommendation_tmp['recommend'].isin(['1',1])]
-      if len(recommendation_tmp)>0:
-            recommendation_tmp.to_csv(main_table_path, mode='a', 
+      recommendation_tmp_filter = recommendation_tmp[recommendation_tmp['recommend'].isin(['1',1,1.0,'1.0'])]
+      if len(recommendation_tmp_filter)>0:
+            recommendation_tmp_filter.to_csv(main_table_path, mode='a', 
                                       header=False, 
                                       index=False, encoding = 'utf-8-sig')
 
-      # append result2 into primary_table
+      # append result-2 into primary_table
       all_dt_tmp = pd.read_csv(all_today_new_open_jobs)
-      all_dt_tmp = all_dt_tmp[all_dt_tmp['recommend'].isin(['1',1])]
-      if len(all_dt_tmp)>0:
-            all_dt_tmp.to_csv(main_table_path, mode='a', 
+      all_dt_tmp_filter = all_dt_tmp[all_dt_tmp['recommend'].isin(['1',1,1.0,'1.0'])]
+      if len(all_dt_tmp_filter)>0:
+            all_dt_tmp_filter.to_csv(main_table_path, mode='a', 
                                     header=False, 
                                     index=False, encoding = 'utf-8-sig')
 
+      # this table used to store recent two weeks reviewed jobs
+      recent_week_review = pd.read_csv(recent_week_review_path)
+      recent_week_review['scrape_date'] = pd.to_datetime(recent_week_review['scrape_date'])
+      recent_date = pd.Timestamp.today().normalize()-pd.Timedelta(days=14)
+      recent_week_review = recent_week_review[recent_week_review['scrape_date']>=recent_date]
+
+      # this is based on review all recommendation tables!
+      # based on the job_id never changed based on its setup!
+      # develop another filter method based on title+company!
+      yesterday_review_tmp = pd.concat([job_alert_tmp,recommendation_tmp,all_dt_tmp],axis=0)
+      yesterday_review_tmp = yesterday_review_tmp[~yesterday_review_tmp['recommend'].isin(['1',1,1.0,'1.0'])]
+      yesterday_review_tmp = yesterday_review_tmp[~yesterday_review_tmp['job_id'].isin(recent_week_review['job_id'].unique().tolist())]
+      if len(yesterday_review_tmp)>0:
+            recent_week_review = pd.concat([recent_week_review,yesterday_review_tmp],axis=0)
+      recent_week_review.to_csv(recent_week_review_path, index=False, encoding='utf-8-sig')      
+      
+
+def get_last_apply_info(main_table_path: Path, 
+                        new_df:pd.DataFrame)->pd.DataFrame:
+      logger.info("---Add last apply info into increasal data---")
      # read main table to do filtering and get main feature of apply_date
-      print('------Begin to get last apply info------')
       main_df = pd.read_csv(main_table_path, encoding='utf-8-sig')
       main_df = main_df.drop_duplicates().reset_index(drop=True)
 
@@ -124,9 +141,7 @@ def get_last_apply_info(job_alert_path:Path, recommendation_path: Path,
       last_apply_df = last_apply_df.rename(columns={"apply_date": "last_apply_date", 
                                                     "title": "last_apply_title"})
       last_apply_df['last_apply_to_today_days'] = (pd.Timestamp.now() - last_apply_df['last_apply_date']).dt.days
-      print('- double check last apply date to be unique for last one: ',last_apply_df.shape[0]==last_apply_df['company'].nunique())
       last_apply_df = last_apply_df[['company','last_apply_date','last_apply_title','last_apply_to_today_days']].drop_duplicates().reset_index(drop=True)
-
       return last_apply_df
 
 
@@ -139,20 +154,30 @@ def build_order_group(df:pd.DataFrame)->pd.DataFrame:
 
 
 def main(main_table_path:Path, added_data_path_list: list, 
-         recommendation_path: Path, min_base_salary:int,                  
+         recommendation_path: Path,                
          title_filter_keywords:str,delete_words_in_title:str,
          delete_words_in_company:str, job_alert_company:list,
-         job_alert_path:Path, all_today_new_open_jobs:Path):
+         job_alert_path:Path, all_today_new_open_jobs:Path,
+         recent_week_review_path:Path):
       
       new_df = added_process(added_data_path_list, 
-                              min_base_salary, 
                               title_filter_keywords, 
                               delete_words_in_title, 
-                              delete_words_in_company, )
-      new_df = get_features(new_df)
+                              delete_words_in_company)
+
+      # add applied data into main table
+      # get table 1 and 2 as yesterday total review data, if today appear again, then delete from increasal data directly
+      add_yesterday_to_main_table(job_alert_path, recommendation_path, 
+                                  all_today_new_open_jobs, main_table_path,
+                                  recent_week_review_path)
       
-      last_apply_df = get_last_apply_info(job_alert_path, recommendation_path, 
-                        all_today_new_open_jobs, main_table_path, new_df)
+      recent_week_review_data = pd.read_csv(recent_week_review_path)
+
+      new_df = new_df[~new_df['job_id'].isin(recent_week_review_data['job_id'].unique().tolist())]
+
+      new_df = get_features(new_df)
+
+      last_apply_df = get_last_apply_info(main_table_path, new_df)
 
       for col in ['last_apply_date','last_apply_title','last_apply_to_']:
            if col in new_df.columns.tolist():
@@ -164,18 +189,18 @@ def main(main_table_path:Path, added_data_path_list: list,
 
       need_cols = ['job_id', 'title', 'company', 'location', 'salary', 'posted_date', 
                    'job_url', 'scrape_date', 'last_apply_date','last_apply_title',
-                   'last_apply_to_today_days', 'recommend', 'apply_date', 'group']
+                   'last_apply_to_today_days', 'recommend', 'apply_date']
 
-      print('------Starting gain job alerts company list------')
+      logger.info("---Start to gain job alerts list---")
       job_alert_company = [x.lower() for x in job_alert_company]
       job_alert_df = new_df[new_df['company'].str.contains('|'.join(job_alert_company))]
       if len(job_alert_df)>0:
             job_alert_df = build_order_group(job_alert_df)
             job_alert_df.to_csv('double_check.csv',index=False,encoding='utf-8-sig')
             job_alert_df[need_cols].to_csv(job_alert_path, index=False, encoding='utf-8-sig')
-            print(f' - Firstly, there are total {len(job_alert_df)} jobs for job alert company list!')
+            logger.info("✅ The first recommendation list has %d jobs!", len(job_alert_df))
 
-      print('------Starting customed recemmendation------')
+      logger.info("---Begin to customed recommendation---")
       # never applied before and post in recent 5 days
       group1 = new_df[(new_df['last_apply_date'].isnull())&(new_df['new_period'].isin(['day','days']))&(new_df['new_unit'].isin([str(x) for x in range(1,6)]))]
       # post in recent 5 days and last apply date was 30 days ago
@@ -185,9 +210,9 @@ def main(main_table_path:Path, added_data_path_list: list,
       recommendation = recommendation[~recommendation['job_id'].isin(job_alert_df['job_id'].unique().tolist())]
       recommendation = build_order_group(recommendation)
       recommendation[need_cols].to_csv(recommendation_path, index=False, encoding = 'utf-8-sig')
-      print(f" - Secondly, there are total {len(recommendation)} jobs to recommend by your customization！")
-
-      print('---Begin to generate all today new open jobs list---')
+      logger.info("✅ The second recommendation list has %d jobs!", len(recommendation))
+      
+      logger.info("---Except above, other jobs for today---")
       # add new table for peak application period, it means apply all today's new posted jobs
       all_today_df = new_df[(new_df['new_unit'].isin(['1',1]))&(new_df['new_period']=='day')]
 
@@ -199,8 +224,7 @@ def main(main_table_path:Path, added_data_path_list: list,
       all_today_df['recommend'] = ''
       all_today_df['apply_date'] = ''
       all_today_df[need_cols].to_csv(all_today_new_open_jobs, index=False, encoding='utf-8-sig')
-      print(' - Finally, if you still have time, you could double check all_today_new_open_jobs.csv！')
-
+      logger.info("✅ The third recommendation list has %d jobs!", len(all_today_df))
 
 if __name__ == "__main__":
     PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -230,11 +254,11 @@ if __name__ == "__main__":
     recommendation_path     = resolve_path(config_dir, Path(cfg['recommendation_path']))
     job_alert_path          = resolve_path(config_dir, Path(cfg['job_alert_path']))
     all_today_new_open_jobs = resolve_path(config_dir, Path(cfg['all_today_new_open_jobs']))
+    recent_week_review_path = resolve_path(config_dir, Path(cfg['recent_week_review_path']))
 
     similar_company_save_path = resolve_path(config_dir, Path(cfg['similar_company_save_path']))
     similar_company = pd.read_csv(similar_company_save_path)
     job_alert_company = similar_company['company'].unique().tolist() # str->list
-    min_base_salary = cfg['min_base_salary'] if cfg['min_base_salary'] is not None else 0
 
     main(
         main_table_path=main_table_path,
@@ -243,10 +267,10 @@ if __name__ == "__main__":
         title_filter_keywords=title_filter_keywords,
         delete_words_in_title=delete_words_in_title,
         delete_words_in_company=delete_words_in_company,
-        min_base_salary=min_base_salary,
         job_alert_company=job_alert_company,
         job_alert_path=job_alert_path,
         all_today_new_open_jobs=all_today_new_open_jobs,
+        recent_week_review_path=recent_week_review_path
     )
       
 

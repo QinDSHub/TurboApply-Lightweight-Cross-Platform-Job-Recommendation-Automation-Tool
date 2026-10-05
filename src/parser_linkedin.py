@@ -7,12 +7,13 @@ from utils import JobInfo
 from utils import clear_folder_os, load_config
 import dataclasses
 from datetime import datetime
+import logging
+
+logger = logging.getLogger(__name__)
 
 def clean_text(text: str) -> str:
-
     if not text:
         return ""
-
     return re.sub(r"\s+", " ", text).strip()
 
 
@@ -179,8 +180,7 @@ def parse_jobs(html_path: str) -> list[JobInfo]:
     )
 
     cards = find_job_cards(soup)
-
-    print(f"Find {len(cards)} job cards")
+    logger.info("Find %d job cards!",len(cards))
 
     jobs = []
 
@@ -243,10 +243,11 @@ def save_jobs_to_csv(
         for job in jobs:
             writer.writerow(asdict(job))
 
-    print(
-        f"Save {len(jobs)} jobs successfully to ："
-        f"{output_path.resolve()}"
-    )
+    # print(
+    #     f"Save {len(jobs)} jobs successfully to ："
+    #     f"{output_path.resolve()}"
+    # )
+    logger.info("save %d jobs successfully to %s", len(jobs), output_path.resolve())
 
 
 if __name__ == "__main__":
@@ -271,7 +272,6 @@ if __name__ == "__main__":
         p = Path(p)
         return p if p.is_absolute() else (base / p).resolve()
 
-    # --- 从 config 读路径 ---
     html_data_dir = resolve_path(config_dir, cfg["linkedin_html_data_dir"])
     data_dir      = resolve_path(config_dir, cfg["data_dir"])
 
@@ -281,12 +281,11 @@ if __name__ == "__main__":
     for page in range(args.start_page, args.end_page + 1):
         file_path = html_data_dir / file_pattern.format(page=page)
         if file_path.exists():
-            print(f"[INFO] Parsing page {page} ...")
+            logger.info("Parsing page %d ...", page)
             jobs = parse_jobs(str(file_path))
             all_jobs.extend(jobs)
-            print(f"[INFO]   Found {len(jobs)} jobs")
         else:
-            print(f"[WARN] File not found: {file_path}")
+            logger.warning("File not found %s", file_path)
 
     if args.is_total:
         output_name = cfg["linkedin_filename"]
@@ -294,6 +293,6 @@ if __name__ == "__main__":
         output_name = cfg["linkedin_filename_added"]
 
     save_jobs_to_csv(all_jobs, data_dir / output_name)
-    print("[INFO] All data saved locally!")
+    logger.info("All jobs %d saved locally!",len(all_jobs))
 
     clear_folder_os(html_data_dir)
