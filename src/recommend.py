@@ -196,7 +196,6 @@ def main(main_table_path:Path, added_data_path_list: list,
       job_alert_df = new_df[new_df['company'].str.contains('|'.join(job_alert_company))]
       if len(job_alert_df)>0:
             job_alert_df = build_order_group(job_alert_df)
-            job_alert_df.to_csv('double_check.csv',index=False,encoding='utf-8-sig')
             job_alert_df[need_cols].to_csv(job_alert_path, index=False, encoding='utf-8-sig')
             logger.info("✅ The first recommendation list has %d jobs!", len(job_alert_df))
 
