@@ -1,5 +1,5 @@
 # TurboApply
-## A Lightweight, Cross-platform Job Recommendation Automation Tool for Efficient Job Search
+## A Lightweight, High-efficient, Cross-platform Job Recommendation Automation Tool
 
 TurboApply is a lightweight, rule-based, cross-platform job recommendation automation tool designed to help job seekers decide faster which opportunities are actually worth applying for.
 
@@ -66,6 +66,7 @@ Building on V3.0.0, this release reorganises the data and output directories to 
   * Companies with two or more recently posted roles are presented as a single group, allowing multiple opportunities from the same company to be reviewed together.
   * This makes it easier to compare roles within the same company and select the most suitable position to apply for, rather than applying sequentially based solely on posting time.
 
+
 **V3.2.0 – Latest Iteration**
 * **Function optimization:** During recent usage, I identified an issue with duplicate job listings across daily searches. For example, jobs downloaded within the previous 24 hours on Day 1 could reappear in the latest one day results on Day 2 when companies refreshed or republished their listings.
 
@@ -84,9 +85,10 @@ Building on V3.0.0, this release reorganises the data and output directories to 
 * **Your results will be generated within about one minute**, with filenames starting with `1`, `2`, and `3`. Start with the highest-priority list, `1_xxx.csv`.
 
   For both `1_xxx.csv` and `2_xxx.csv`, clear the `recommend` and `apply_date` fields for jobs you decide not to apply for.
-  
+
   For `1_xxx.csv`, fill in the `recommend` and `apply_date` fields for jobs you do apply for. This is important because the list is intentionally prioritized—you may not have enough time to apply to all recommended jobs, so these fields help track which opportunities you have actually acted on.
 
+  
 ---
   
 ### 1. Why TurboApply?
