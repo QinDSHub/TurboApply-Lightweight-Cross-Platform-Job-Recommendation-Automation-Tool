@@ -1,7 +1,6 @@
-import csv,time
 from pathlib import Path
 from typing import List, Optional
-from dataclasses import dataclass, asdict
+from dataclasses import asdict
 from bs4 import BeautifulSoup
 from datetime import datetime
 import pandas as pd
@@ -14,31 +13,57 @@ import logging
 logger = logging.getLogger(__name__)
 
 class IrishJobsLocalParser:    
+    """Parse locally saved IrishJobs.ie HTML pages into structured job records.
+
+    This parser reads HTML files from a local directory, extracts each job
+    card's fields (title, origin_company, location, salary, posted date, URL, etc.),
+    and returns them as ``JobInfo`` objects. It supports both single-file
+    parsing and batch parsing across multiple pages.
+
+    Attributes:
+        html_data_dir (Path): Directory containing the local HTML files.
+        data_dir (Path): Directory used for output data.
+    """
+
     def __init__(self, html_data_dir: str, data_dir: str):
+        """Initialize the parser with input and output directories.
+
+        Args:
+            html_data_dir (str): Directory containing the local HTML files.
+                Created if it does not exist.
+            data_dir (str): Directory for output data. Created if it does not exist.
+        """
+
         self.html_data_dir = Path(html_data_dir)
         self.html_data_dir.mkdir(exist_ok=True)
         self.data_dir = Path(data_dir)
         self.data_dir.mkdir(exist_ok=True)
     
     def parse_html_file(self, html_file_path: str) -> List[JobInfo]:
-        """
-        parse one html file to extract job's info
-        
+        """Parse one HTML file to extract job information.
+
         Args:
-            html_file_path: HTML path
-            
+            html_file_path (str): Path to the HTML file to parse.
+
         Returns:
-            html content
+            List[JobInfo]: A list of parsed job records. Empty if no job cards are found.
         """
+
         with open(html_file_path, 'r', encoding='utf-8') as f:
             html_content = f.read()
         
         return self.parse_html_content(html_content)
     
     def parse_html_content(self, html_content: str) -> List[JobInfo]:
+        """Extract every job record from the given HTML content.
+
+        Args:
+            html_content (str): Raw HTML content of an IrishJobs.ie page.
+
+        Returns:
+            List[JobInfo]: A list of parsed job records. Empty if no job cards are found.
         """
-        extract every job content from the html content
-        """
+
         soup = BeautifulSoup(html_content, 'html.parser')
         cards = soup.select('[data-at="job-item"]')
 
@@ -54,7 +79,16 @@ class IrishJobsLocalParser:
         return jobs
 
     def _parse_card(self, card) -> Optional[JobInfo]:
-        """parse every job card from job content"""
+        """Parse a single job card into a ``JobInfo`` object.
+
+        Args:
+            card: A BeautifulSoup element representing one job card.
+
+        Returns:
+            Optional[JobInfo]: The parsed job record, or ``None`` if the card
+            is missing a job ID or parsing fails.
+        """
+
         try:
             raw_id = card.get('id', '')
             job_id = raw_id.replace('job-item-', '') if raw_id else ''
@@ -84,7 +118,7 @@ class IrishJobsLocalParser:
             return JobInfo(
                 job_id=job_id,
                 title=title,
-                company=company,
+                origin_company=company,
                 location=location,
                 salary=salary,
                 posted_date=posted_date,
@@ -96,16 +130,17 @@ class IrishJobsLocalParser:
             return None
     
     def parse_multiple_pages(self, file_pattern: str, page_range: range) -> List[JobInfo]:
-        """
-        Batch-process multiple pages.
+        """Batch-process multiple HTML pages.
 
         Args:
-            file_pattern: File path pattern, e.g. "page_{page}.html"
-            page_range: Range of page numbers, e.g. range(1, 8)
+            file_pattern (str): File path pattern, e.g. ``"page_{page}.html"``.
+            page_range (range): Range of page numbers, e.g. ``range(1, 8)``.
 
         Returns:
-            A list containing all job records.
+            List[JobInfo]: A list containing all job records from the parsed pages.
+            Missing files are skipped with a warning.
         """
+
         all_jobs = []
         
         for page in page_range:
@@ -121,34 +156,28 @@ class IrishJobsLocalParser:
         
         return all_jobs
 
-
-    # def print_stats(self, jobs: List[JobInfo]) -> None:
-    #     if not jobs:
-    #         logger.warning("NO DATA!")
-    #         return
-        
-    #     company_counts = {}
-    #     for job in jobs:
-    #         company_counts[job.company] = company_counts.get(job.company, 0) + 1
-        
-    #     for company, count in sorted(company_counts.items(), key=lambda x: x[1], reverse=True)[:10]:
-    #         print(f"  {company}: {count}")
-        
-    #     location_counts = {}
-    #     for job in jobs:
-    #         loc = job.location or "undefined"
-    #         location_counts[loc] = location_counts.get(loc, 0) + 1
-        
-    #     print("\nTOP 10 location with most opening jobs:")
-    #     for loc, count in sorted(location_counts.items(), key=lambda x: x[1], reverse=True)[:10]:
-    #         print(f"  {loc}: {count}")
-        
-    #     salary_known = sum(1 for job in jobs if job.salary and job.salary != "Not Disclosed")
-    #     print(f"\nJobs with salary: {salary_known}/{len(jobs)}")
-
-
 def main(start_page: int, end_page: int, html_data_dir: Path, data_dir: Path,
          filename: str, filename_added: str, is_total: bool) -> None:
+    """Run the local IrishJobs parser and save the results as a CSV file.
+
+    Parses HTML pages in the given range, converts the extracted ``JobInfo``
+    records into a ``pandas.DataFrame``, and writes them to a CSV file under
+    ``data_dir``.
+
+    Args:
+        start_page (int): First page number to parse (inclusive).
+        end_page (int): Last page number to parse (inclusive).
+        html_data_dir (Path): Directory containing the local HTML files.
+        data_dir (Path): Directory where the output CSV will be saved.
+        filename (str): Output CSV filename used when ``is_total`` is True.
+        filename_added (str): Output CSV filename used when ``is_total`` is False.
+        is_total (bool): If True, save as ``filename``; otherwise save as
+            ``filename_added``.
+
+    Returns:
+        None: This function writes the CSV to disk and does not return a value.
+    """
+    
     parser = IrishJobsLocalParser(html_data_dir, data_dir)
 
     jobs = parser.parse_multiple_pages(

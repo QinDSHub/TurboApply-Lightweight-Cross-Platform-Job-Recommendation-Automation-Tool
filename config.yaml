@@ -1,4 +1,8 @@
 data_dir: 'data'
+# interview_company: "acompany,bcompany", just add new interview company in order to decrease token cost
+interview_company: "c-company"
+region: "Ireland"
+top_k: int("recommend number for similar business companies based on your interview_company")
 
 irishjobs_html_data_dir: 'data/irishjobs_raw_data'
 irishjobs_filename_added: 'irishjobs_data_added.csv'
@@ -18,10 +22,7 @@ title_filter_keywords: "ai,ml,data,software,senior,engineer,agentic,llm,dl,nlp"
 delete_words_in_title: "trainee,affairs,grain,part-time,part time,intern,product"
 delete_words_in_company: "human,recruitment,jobgether,recruit,fruition,talent"
 
-interview_company: "acompany,bcompany"
 similar_company_save_path: "output/similar_company_list.csv"
-region: "Ireland"
-top_k: int("recommend number for similar business companies based on your interview_company")
 
 
 

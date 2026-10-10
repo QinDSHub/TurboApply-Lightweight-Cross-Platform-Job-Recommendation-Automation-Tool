@@ -12,12 +12,33 @@ import logging
 logger = logging.getLogger(__name__)
 
 def clean_text(text: str) -> str:
+    """Normalize whitespace in a string.
+
+    Collapses consecutive whitespace characters into a single space and
+    strips leading/trailing whitespace.
+
+    Args:
+        text (str): The input string to clean.
+
+    Returns:
+        str: The cleaned string. Returns an empty string if ``text`` is falsy.
+    """
+
     if not text:
         return ""
     return re.sub(r"\s+", " ", text).strip()
 
 
 def _get_p_texts(card) -> list[str]:
+    """Collect cleaned text from all non-empty ``<p>`` tags in a job card.
+
+    Args:
+        card: A BeautifulSoup element representing one job card.
+
+    Returns:
+        list[str]: Cleaned text of each non-empty ``<p>`` tag, in document order.
+    """
+
     return [
         clean_text(p.get_text(" ", strip=True))
         for p in card.find_all("p")
@@ -26,40 +47,61 @@ def _get_p_texts(card) -> list[str]:
 
 
 def extract_job_id(card) -> str:
-    """
-    Extract job_id from componentkey.
+    """Extract the job ID from the card's ``componentkey`` attribute.
 
-    For example：
+    For example::
+
         componentkey="job-card-component-ref-4368310806"
-    -> "4368310806"
+        -> "4368310806"
+
+    Args:
+        card: A BeautifulSoup element representing one job card.
+
+    Returns:
+        str: The extracted numeric job ID, or an empty string if not found.
     """
+
     ck = card.get("componentkey", "")
     match = re.search(r"job-card-component-ref-(\d+)", ck)
     return match.group(1) if match else ""
 
 
 def extract_job_url(job_id: str) -> str:
+    """Build the LinkedIn job URL from a job ID.
+
+    Args:
+        job_id (str): The numeric job ID.
+
+    Returns:
+        str: The full LinkedIn job URL, or an empty string if ``job_id`` is empty.
     """
-    Get LinkedIn job URL from job_id。
-    """
+
     if not job_id:
         return ""
     return f"https://www.linkedin.com/jobs/view/{job_id}/"
 
 
 def extract_title(card) -> str:
-    """
-    Extract title name.
+    """Extract the job title from a LinkedIn job card.
 
-    LinkedIn card structure：
+    LinkedIn card structure::
+
         <p>
-          <span>Title (Verified job)</span>   ← seen text
+          <span>Title (Verified job)</span>     ← seen text
           <span aria-hidden="true">Title</span>  ← pure text
         </p>
 
-    Using aria-hidden span to get title name end with "(Verified job)"；
-    If failed, then fallback to the first <p> and manually solve。
+    Uses the ``aria-hidden`` span to get the title without the "(Verified job)"
+    suffix. If that fails, falls back to the first ``<p>`` and removes the
+    suffix manually.
+
+    Args:
+        card: A BeautifulSoup element representing one job card.
+
+    Returns:
+        str: The cleaned job title, or an empty string if not found.
     """
+
     p_tags = [p for p in card.find_all("p") if p.get_text(strip=True)]
     if not p_tags:
         return ""
@@ -82,16 +124,51 @@ def extract_title(card) -> str:
 
 
 def extract_company(card) -> str:
+    """Extract the origin company name from a job card.
+
+    The origin company name is taken from the second non-empty ``<p>`` tag.
+
+    Args:
+        card: A BeautifulSoup element representing one job card.
+
+    Returns:
+        str: The origin company name, or an empty string if not available.
+    """
+
     texts = _get_p_texts(card)
     return texts[1] if len(texts) >= 2 else ""
 
 
 def extract_location(card) -> str:
+    """Extract the job location from a job card.
+
+    The location is taken from the third non-empty ``<p>`` tag.
+
+    Args:
+        card: A BeautifulSoup element representing one job card.
+
+    Returns:
+        str: The job location, or an empty string if not available.
+    """
+
     texts = _get_p_texts(card)
     return texts[2] if len(texts) >= 3 else ""
 
 
 def extract_salary(card) -> str:
+    """Extract the salary text from a job card.
+
+    Scans only ``<p>`` tags (not the full card text) to avoid false positives.
+    Range patterns are matched before single-value patterns so that full ranges
+    like ``"$80K - $120K/yr"`` are returned intact.
+
+    Args:
+        card: A BeautifulSoup element representing one job card.
+
+    Returns:
+        str: The matched salary string, or an empty string if no pattern matches.
+    """
+
     # Range patterns must come before single-value patterns
     salary_patterns = [
         # e.g. "200K CAD/yr - 330K CAD/yr"  or  "200K CAD - 330K CAD"
@@ -116,14 +193,22 @@ def extract_salary(card) -> str:
 
 
 def extract_posted_date(card) -> str:
-    """
-    Extract the posted date (only take visible spans to avoid duplicates caused by aria-hidden).
+    """Extract the posted date text from a job card.
 
-    For example：
+    Only visible spans are scanned to avoid duplicates caused by ``aria-hidden``
+    elements. Example outputs::
+
         Posted 10 hours ago
         Reposted 4 days ago
         1 week ago
+
+    Args:
+        card: A BeautifulSoup element representing one job card.
+
+    Returns:
+        str: The matched posted-date string, or an empty string if not found.
     """
+
     patterns = [
         r"(?:Reposted|Posted)\s+\d+\s+(?:minute|minutes|hour|hours|day|days|week|weeks|month|months)\s+ago",
         r"\d+\s+(?:minute|minutes|hour|hours|day|days|week|weeks|month|months)\s+ago",
@@ -144,13 +229,17 @@ def extract_posted_date(card) -> str:
 
 
 def find_job_cards(soup):
-    """
-    Find the job card based on the component key in the LinkedIn DOM.
+    """Find all job cards in the LinkedIn DOM.
 
-    Current HTML includes：
-        componentkey="job-card-component-ref-XXXXXXXXXX"
+    Cards are located by the ``componentkey`` attribute, which currently looks
+    like ``componentkey="job-card-component-ref-XXXXXXXXXX"``. This avoids
+    relying on random CSS class names.
 
-    So it does not rely on random CSS class。
+    Args:
+        soup: A BeautifulSoup document object.
+
+    Returns:
+        list: A list of BeautifulSoup elements matching the job-card pattern.
     """
 
     cards = soup.find_all(
@@ -165,6 +254,18 @@ def find_job_cards(soup):
 
 
 def parse_jobs(html_path: str) -> list[JobInfo]:
+    """Parse a LinkedIn HTML file and extract all job records.
+
+    Reads the HTML file, locates all job cards, extracts each field (job ID,
+    URL, title, origin_company, location, salary, posted date), and returns a list of
+    ``JobInfo`` objects.
+
+    Args:
+        html_path (str): Path to the LinkedIn HTML file to parse.
+
+    Returns:
+        list[JobInfo]: A list of parsed job records, one per job card.
+    """
 
     html_path = Path(html_path)
 
@@ -205,7 +306,7 @@ def parse_jobs(html_path: str) -> list[JobInfo]:
         job = JobInfo(
             job_id=job_id,
             title=title,
-            company=company,
+            origin_company=company,
             location=location,
             salary=salary,
             posted_date=posted_date,
@@ -220,8 +321,20 @@ def parse_jobs(html_path: str) -> list[JobInfo]:
 
 def save_jobs_to_csv(
     jobs: list[JobInfo],
-    output_path: str
-):
+    output_path: str):
+    """Save a list of job records to a CSV file.
+
+    Writes a header row followed by one row per ``JobInfo`` object, using the
+    dataclass field names as column names. The file is written with
+    ``utf-8-sig`` encoding so it opens correctly in Excel.
+
+    Args:
+        jobs (list[JobInfo]): The job records to save.
+        output_path (str): Path where the CSV file will be written.
+
+    Returns:
+        None: This function writes the file to disk and does not return a value.
+    """
 
     output_path = Path(output_path)
 
@@ -243,10 +356,6 @@ def save_jobs_to_csv(
         for job in jobs:
             writer.writerow(asdict(job))
 
-    # print(
-    #     f"Save {len(jobs)} jobs successfully to ："
-    #     f"{output_path.resolve()}"
-    # )
     logger.info("save %d jobs successfully to %s", len(jobs), output_path.resolve())
 
 

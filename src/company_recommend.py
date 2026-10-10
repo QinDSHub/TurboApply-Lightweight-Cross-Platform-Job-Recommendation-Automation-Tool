@@ -1,5 +1,6 @@
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
+from utils import match_company
 import dotenv,os
 from pathlib import Path
 from pydantic import BaseModel, Field
@@ -132,19 +133,28 @@ partial_variables={
 )
 
 
-def gain_sector_agent(response_model:Type[IndustryRes], 
+def gain_sector_agent(response_mode:Type[IndustryRes], 
                       llm_1: BaseChatModel, 
                       interview_company_settled:str, ) -> IndustryRes:
+      """Get several tags for the sector and subsector of the given companies using an LLM.
+
+        Args:
+            response_mode (Type[IndustryRes]): The schema class that defines the output structure.
+            llm_1 (BaseChatModel): The OpenAI chat model instance used to generate tags.
+            interview_company_settled (str): A string listing all companies that have given interviews.
+
+        Returns:
+            IndustryRes: The output from ``llm_1``, structured according to ``response_mode``.
+      """
 
       chain = prompt_1 | llm_1
 
       output_1 = chain.invoke({"interview_company":'\n'.join(interview_company_settled)})
 
-      if not isinstance(output_1, response_model):
+      if not isinstance(output_1, response_mode):
             raise ValueError(f"Unexpected output type: {type(output_1)}")
 
       return output_1
-
 
 
 class CompanyItem(BaseModel):
@@ -192,11 +202,24 @@ llm_2 = ChatOpenAI(model='gpt-5.6-luna',
                  base_url=base_url).with_structured_output(ExpandedRes)
 
 
-def company_recommend_agent(seed:BaseModel, 
-                            response_model: Type[ExpandedRes], 
-                            llm_2: BaseChatModel,
-                            region: str,
-                            top_k:int,)->ExpandedRes:
+def company_recommend_agent(
+    seed: BaseModel,
+    response_mode: Type[ExpandedRes],
+    llm_2: BaseChatModel,
+    region: str,
+    top_k: int,) -> ExpandedRes:
+      """Get the top-k companies based on the sector and subsector tags from the previous agent's output.
+
+      Args:
+          seed (BaseModel): The structured output from the previous agent.
+          response_mode (Type[ExpandedRes]): The schema class that defines the output structure.
+          llm_2 (BaseChatModel): The OpenAI chat model instance used to generate recommendations.
+          region (str): The assigned region, such as ``"Ireland"``.
+          top_k (int): The number of similar companies to recommend.
+
+      Returns:
+          ExpandedRes: The output from ``llm_2``, structured according to ``response_mode``.
+      """
 
       chain_2 = prompt_2 | llm_2
 
@@ -210,7 +233,7 @@ def company_recommend_agent(seed:BaseModel,
             "top_k":top_k}
       )
 
-      if not isinstance(output_2, response_model):
+      if not isinstance(output_2, response_mode):
             logger.warning("Unexpected output type: %s", type(output_2))
 
       return output_2
@@ -248,14 +271,18 @@ if __name__ == "__main__":
         for item in sub_output.companies:
              data.append([item.company, item.rank, item.reason])
     if data:
-        df = pd.DataFrame(data, columns=['company','rank','reason'])
-        cnt = df.groupby('company').size().rename("cnt")
-        df = (df.sort_values(by=['company','rank'],ascending=True).\
-              drop_duplicates(subset=['company'],keep='first').\
-                merge(cnt,on='company',how='left').\
+        df = pd.DataFrame(data, columns=['origin_company','rank','reason'])
+        cnt = df.groupby('origin_company').size().rename("cnt")
+        df = (df.sort_values(by=['origin_company','rank'],ascending=True).\
+              drop_duplicates(subset=['origin_company'],keep='first').\
+                merge(cnt,on='origin_company',how='left').\
                     sort_values(by=['cnt','rank'], ascending=[False, True]).\
                         reset_index(drop=True))
-        df[['company','reason']].to_csv(similar_company_save_path, index=False, encoding='utf-8-sig')
+        df['origin_company'] = df['origin_company'].apply(lambda x:x.lower())
+        df = match_company(df)
+        df[['origin_company','company','reason']].to_csv(similar_company_save_path, mode="a", 
+                                                         header=False,
+                                                         index=False, encoding='utf-8-sig')
     else:
         logger.warning("No DATA, pls double check your scripts!")
 

@@ -67,11 +67,20 @@ Building on V3.0.0, this release reorganises the data and output directories to 
   * This makes it easier to compare roles within the same company and select the most suitable position to apply for, rather than applying sequentially based solely on posting time.
 
 
-**V3.2.0 – Latest Iteration**
+**V3.2.0 – Latest Using Iteration**
 * **Function optimization:** During recent usage, I identified an issue with duplicate job listings across daily searches. For example, jobs downloaded within the previous 24 hours on Day 1 could reappear in the latest one day results on Day 2 when companies refreshed or republished their listings.
 
   To address this, V3.2.0 introduced a rolling two-week data retention window to keep the review dataset bounded. Expired records are automatically removed before ingesting the latest listings, regardless of whether an application was submitted. This prevents previously reviewed jobs from repeatedly resurfacing when companies refresh or republish the same listings, making the daily workflow more efficient and reducing unnecessary manual review.
 * **Logging for traceability:** Replaced direct `print` statements used for debugging with a dedicated logging function built on Python's standard `logging` module, improving traceability, maintainability, scalability, and troubleshooting.
+
+
+**V3.2.1 – Latest Using Iteration**
+* **Standardise function design:** Improved function structure and coding standards by adopting Google-style docstrings. Functions are now documented with clear descriptions of their purpose, parameters, return values, and expected behaviour where appropriate, improving code readability, maintainability, and consistency across the project.
+
+* **Company name normalisation:** After analysing the `company` feature data, identified inconsistencies in company names on the same platform, such as `ABC` and `ABC Ireland`, which could cause duplicate company entries and fragmented company-level recommendations. Introduced a rule-based normalisation approach to standardise company names, covering the vast majority of observed cases. The rules extract the first name segment before a space, period, or hyphen, while preserving short names of three characters or fewer (e.g., `An Post`) and names containing key phrases such as `Bank of` or `University` (e.g., `Bank of Ireland` and `Bank of America`). Additional exceptions were implemented for selected companies requiring special handling. This improves company-level consistency and recommendation accuracy without relying on more complex processing.
+
+* **Incremental company-level job alert recommendations:** Optimised company-level job alert recommendation generation by adopting an append-only approach. Newly identified companies are added to the existing recommendation dataset without reprocessing previously analysed companies, reducing redundant LLM calls and token consumption while improving the efficiency and scalability of the workflow.
+
 
 ### ⚡ In a nutshell, the steps are:
 * **Download and unzip the repository.** Make sure the required versions of Python and Poetry are installed.
