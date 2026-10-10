@@ -67,7 +67,7 @@ Building on V3.0.0, this release reorganises the data and output directories to 
   * This makes it easier to compare roles within the same company and select the most suitable position to apply for, rather than applying sequentially based solely on posting time.
 
 
-**V3.2.0 – Latest Using Iteration**
+**V3.2.0 – Duplicate Listing Prevention & Logging Enhancement**
 * **Function optimization:** During recent usage, I identified an issue with duplicate job listings across daily searches. For example, jobs downloaded within the previous 24 hours on Day 1 could reappear in the latest one day results on Day 2 when companies refreshed or republished their listings.
 
   To address this, V3.2.0 introduced a rolling two-week data retention window to keep the review dataset bounded. Expired records are automatically removed before ingesting the latest listings, regardless of whether an application was submitted. This prevents previously reviewed jobs from repeatedly resurfacing when companies refresh or republish the same listings, making the daily workflow more efficient and reducing unnecessary manual review.
